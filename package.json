@@ -1,0 +1,17 @@
+{
+  "name": "vercel-image-music-card",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Serverless image generator with text and music metadata for Vercel",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node api/generate-card.js"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.67"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
