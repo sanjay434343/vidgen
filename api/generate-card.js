@@ -17,50 +17,58 @@ export default async function handler(req, res) {
   try {
     const {
       text,
-      bgColor,
-      textColor,
-      fontSize,
-      musicUrl
+      bgColor = "#020617",
+      textColor = "#ffffff",
+      fontSize = 64,
+      musicUrl = ""
     } = req.body || {};
 
     if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "Text is required" });
     }
 
-    // Canvas size (Reels / Shorts friendly)
     const width = 1080;
     const height = 1920;
 
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
-    // Background
-    ctx.fillStyle = bgColor || "#020617";
+    // ---------- Background ----------
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, width, height);
 
-    // Text
-    ctx.fillStyle = textColor || "#ffffff";
-    ctx.font = `bold ${fontSize || 64}px system-ui`;
+    // ---------- Text Settings ----------
+    ctx.font = `700 ${fontSize}px system-ui`;
+    ctx.fillStyle = textColor;
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textBaseline = "alphabetic";
 
-    wrapText(
-      ctx,
-      text,
-      width / 2,
-      height / 2,
-      width - 160,
-      (fontSize || 64) + 12
-    );
+    // Optional: improve visibility
+    ctx.shadowColor = "rgba(0,0,0,0.35)";
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
 
-    // Export
+    // ---------- Wrap text ----------
+    const maxWidth = width * 0.82;
+    const lineHeight = fontSize * 1.35;
+    const lines = getWrappedLines(ctx, text, maxWidth);
+
+    // ---------- TRUE vertical centering ----------
+    const totalTextHeight = lines.length * lineHeight;
+    let y = (height - totalTextHeight) / 2 + fontSize;
+
+    lines.forEach(line => {
+      ctx.fillText(line, width / 2, y);
+      y += lineHeight;
+    });
+
     const buffer = canvas.toBuffer("image/png");
     const base64 = buffer.toString("base64");
 
     return res.json({
       success: true,
       image: `data:image/png;base64,${base64}`,
-      music: musicUrl || "",
+      music: musicUrl,
       duration: 8
     });
 
@@ -70,25 +78,25 @@ export default async function handler(req, res) {
   }
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+/* ---------- Helpers ---------- */
+
+function getWrappedLines(ctx, text, maxWidth) {
   const words = text.split(" ");
-  let line = "";
   const lines = [];
+  let line = "";
 
   for (let i = 0; i < words.length; i++) {
     const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && i > 0) {
-      lines.push(line);
+    const { width } = ctx.measureText(testLine);
+
+    if (width > maxWidth && i > 0) {
+      lines.push(line.trim());
       line = words[i] + " ";
     } else {
       line = testLine;
     }
   }
-  lines.push(line);
 
-  const startY = y - (lines.length * lineHeight) / 2;
-  lines.forEach((l, i) => {
-    ctx.fillText(l, x, startY + i * lineHeight);
-  });
+  lines.push(line.trim());
+  return lines;
 }
