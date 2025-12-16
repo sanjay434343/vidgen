@@ -18,7 +18,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
-    // Simple SVG (centered text)
     const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
   <rect width="100%" height="100%" fill="${cardColor}" />
@@ -27,14 +26,13 @@ export default async function handler(req, res) {
     y="540"
     fill="${textColor}"
     font-size="80"
-    font-family="Arial"
+    font-family="Arial, sans-serif"
     font-weight="bold"
     text-anchor="middle"
     dominant-baseline="middle"
-  >${escape(text)}</text>
+  >${escapeXml(text)}</text>
 </svg>`;
 
-    // Fetch music
     const r = await fetch(musicUrl);
     if (!r.ok) {
       return res.status(400).json({ error: "Invalid music URL" });
@@ -54,8 +52,8 @@ export default async function handler(req, res) {
   }
 }
 
-function escape(s) {
-  return s.replace(/[<>&"]/g, c =>
+function escapeXml(str) {
+  return str.replace(/[<>&"]/g, c =>
     ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", "\"":"&quot;" }[c])
   );
 }
