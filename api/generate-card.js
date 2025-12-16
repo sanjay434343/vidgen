@@ -116,8 +116,13 @@ function generateSVG({
   clipEnd
 }) {
   const safe = Math.min(w, h) * 0.05;
+
   const avatar = Math.min(w, h) * 0.09;
   const songSize = Math.min(w, h) * 0.12;
+
+  // 🔹 DIFFERENT LEFT OFFSETS
+  const userLeft = safe * 2.2;   // pushed inward (right)
+  const songLeft = safe;         // stays near edge
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
@@ -133,19 +138,22 @@ function generateSVG({
   <!-- BACKGROUND -->
   <rect width="100%" height="100%" fill="${cardColor}" />
 
-  <!-- USER TOP LEFT -->
-  ${userProfileImage ? `
-  <image
-    href="${userProfileImage}"
-    x="${safe}"
-    y="${safe}"
-    width="${avatar}"
-    height="${avatar}"
-    clip-path="url(#userCircle)"
-  />` : ""}
+  <!-- ================= USER (TOP LEFT – PUSHED INWARD) ================= -->
+  ${
+    userProfileImage
+      ? `<image
+          href="${userProfileImage}"
+          x="${userLeft}"
+          y="${safe}"
+          width="${avatar}"
+          height="${avatar}"
+          clip-path="url(#userCircle)"
+        />`
+      : ""
+  }
 
   <text
-    x="${safe + avatar + 14}"
+    x="${userLeft + avatar + 14}"
     y="${safe + avatar / 2}"
     fill="#ffffff"
     font-size="${Math.round(w * 0.02)}"
@@ -155,7 +163,7 @@ function generateSVG({
     ${escapeXml(username || uid)}
   </text>
 
-  <!-- MAIN TEXT CENTER -->
+  <!-- ================= MAIN TEXT (CENTER) ================= -->
   <text
     x="${w / 2}"
     y="${h / 2}"
@@ -168,19 +176,22 @@ function generateSVG({
     ${escapeXml(text)}
   </text>
 
-  <!-- SONG BOTTOM LEFT -->
-  ${songImage ? `
-  <image
-    href="${songImage}"
-    x="${safe}"
-    y="${h - songSize - safe}"
-    width="${songSize}"
-    height="${songSize}"
-    clip-path="url(#songCircle)"
-  />` : ""}
+  <!-- ================= SONG (BOTTOM LEFT – CLOSER TO EDGE) ================= -->
+  ${
+    songImage
+      ? `<image
+          href="${songImage}"
+          x="${songLeft}"
+          y="${h - songSize - safe}"
+          width="${songSize}"
+          height="${songSize}"
+          clip-path="url(#songCircle)"
+        />`
+      : ""
+  }
 
   <text
-    x="${safe + songSize + 14}"
+    x="${songLeft + songSize + 14}"
     y="${h - songSize - safe + 42}"
     fill="${textColor}"
     font-size="${Math.round(w * 0.018)}"
@@ -190,7 +201,7 @@ function generateSVG({
   </text>
 
   <text
-    x="${safe + songSize + 14}"
+    x="${songLeft + songSize + 14}"
     y="${h - songSize - safe + 78}"
     fill="${textColor}"
     font-size="${Math.round(w * 0.014)}"
@@ -198,7 +209,7 @@ function generateSVG({
     ${escapeXml(artist)}
   </text>
 
-  <!-- CLIP INFO -->
+  <!-- ================= CLIP INFO ================= -->
   <text
     x="${w - safe}"
     y="${h - safe}"
@@ -208,8 +219,10 @@ function generateSVG({
     font-family="Arial, sans-serif">
     ${clipStart}s – ${clipEnd}s
   </text>
+
 </svg>`;
 }
+
 
 function escapeXml(str = "") {
   return str.replace(/[<>&"]/g, c =>
