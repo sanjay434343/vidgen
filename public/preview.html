@@ -1,218 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<title>Video Card Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>VidGen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body {
   background:#0f172a;
   color:#e5e7eb;
-  font-family:system-ui,-apple-system;
-  margin:0;
-  padding:20px;
+  font-family:system-ui;
   display:flex;
   justify-content:center;
+  padding:20px;
 }
 .app {
+  max-width:1100px;
   width:100%;
-  max-width:960px;
   background:#020617;
-  border-radius:16px;
   padding:20px;
+  border-radius:16px;
 }
 .grid {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:20px;
 }
-@media (max-width:900px) {
-  .grid { grid-template-columns:1fr; }
-}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
 .panel {
   border:1px solid #1e293b;
   border-radius:14px;
   padding:16px;
 }
 label {
-  display:block;
-  margin-top:12px;
   font-size:13px;
   color:#94a3b8;
+  margin-top:12px;
+  display:block;
 }
-input, textarea, select {
+input,textarea,select {
   width:100%;
   margin-top:6px;
   padding:10px;
-  border-radius:8px;
-  border:1px solid #334155;
   background:#020617;
+  border:1px solid #334155;
+  border-radius:8px;
   color:#e5e7eb;
 }
-textarea { resize:vertical; }
 button {
   margin-top:16px;
-  width:100%;
   padding:12px;
-  border:none;
-  border-radius:10px;
   background:#38bdf8;
   color:#020617;
+  border:none;
+  border-radius:10px;
   font-weight:700;
-  cursor:pointer;
-}
-button:disabled {
-  opacity:.6;
-  cursor:not-allowed;
 }
 .preview {
   background:#000;
   border-radius:14px;
-  border:1px solid #1e293b;
   overflow:hidden;
-  position:relative;
+  border:1px solid #1e293b;
 }
-.preview video {
+.preview img,.preview video {
   width:100%;
   height:100%;
   object-fit:contain;
-  background:#000;
-}
-.loader {
-  position:absolute;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.7);
-  font-size:14px;
-  font-weight:600;
-}
-.loader.show { display:flex; }
-.download {
-  margin-top:10px;
-  text-align:center;
-}
-.download a {
-  color:#38bdf8;
-  font-weight:600;
-  text-decoration:none;
-}
-.error {
-  margin-top:10px;
-  color:#f87171;
-  font-size:13px;
 }
 </style>
 </head>
 
 <body>
 <div class="app">
-  <h2>Video Card Generator</h2>
+<div class="grid">
 
-  <div class="grid">
+<div class="panel">
+  <label>User Name</label>
+  <input id="username">
 
-    <!-- INPUT PANEL -->
-    <div class="panel">
-      <label>Main Text</label>
-      <textarea id="text">HELLO WORLD</textarea>
+  <label>User Profile Image URL</label>
+  <input id="userProfileImage">
 
-      <label>Aspect Ratio</label>
-      <select id="ratio">
-        <option value="1:1">1:1</option>
-        <option value="9:16">9:16</option>
-        <option value="16:9" selected>16:9</option>
-      </select>
+  <label>Aspect Ratio</label>
+  <select id="ratio">
+    <option value="1:1">1:1</option>
+    <option value="9:16">9:16</option>
+    <option value="16:9" selected>16:9</option>
+  </select>
 
-      <label>Text Color</label>
-      <input type="color" id="textColor" value="#ffffff">
+  <label>Main Text</label>
+  <textarea id="text">HELLO WORLD</textarea>
 
-      <label>Background Color</label>
-      <input type="color" id="cardColor" value="#000000">
+  <label>Text Color</label>
+  <input type="color" id="textColor" value="#ffffff">
 
-      <label>Music URL (public MP3)</label>
-      <input id="musicUrl" placeholder="https://...mp3">
+  <label>Background Color</label>
+  <input type="color" id="cardColor" value="#000000">
 
-      <label>Clip Start (seconds)</label>
-      <input id="clipStart" type="number" step="0.1" value="0">
+  <label>Song Title</label>
+  <input id="songTitle">
 
-      <label>Clip End (seconds)</label>
-      <input id="clipEnd" type="number" step="0.1" value="5">
+  <label>Artist</label>
+  <input id="artist">
 
-      <button id="generateBtn" onclick="generateVideo()">Generate Video</button>
-      <div id="error" class="error"></div>
-    </div>
+  <label>Song Image URL</label>
+  <input id="songImage">
 
-    <!-- PREVIEW PANEL -->
-    <div class="panel">
-      <div class="preview" style="height:360px">
-        <div class="loader" id="loader">Rendering video…</div>
-        <video id="video" controls playsinline></video>
-      </div>
-      <div class="download" id="download"></div>
-    </div>
+  <label>Music URL</label>
+  <input id="musicUrl">
 
-  </div>
+  <label>Clip Start (sec)</label>
+  <input id="clipStart" type="number" step="0.1">
+
+  <label>Clip End (sec)</label>
+  <input id="clipEnd" type="number" step="0.1">
+
+  <button onclick="generate()">Generate & Download</button>
 </div>
 
+<div class="panel">
+  <div class="preview"><img id="svgPreview"></div><br>
+  <div class="preview"><video id="videoPreview" controls></video></div>
+</div>
+
+</div>
+</div>
+
+<canvas id="canvas" style="display:none"></canvas>
+
 <script>
-async function generateVideo() {
-  const btn = document.getElementById("generateBtn");
-  const loader = document.getElementById("loader");
-  const video = document.getElementById("video");
-  const error = document.getElementById("error");
-  const download = document.getElementById("download");
+async function toBase64(url){
+  if(!url) return "";
+  const r=await fetch(url);
+  const b=await r.blob();
+  return await new Promise(res=>{
+    const fr=new FileReader();
+    fr.onload=()=>res(fr.result);
+    fr.readAsDataURL(b);
+  });
+}
 
-  error.textContent = "";
-  download.innerHTML = "";
-  video.removeAttribute("src");
+async function generate(){
+  const start=Number(clipStart.value);
+  const end=Number(clipEnd.value);
+  if(end<=start){alert("Invalid clip range");return;}
 
-  const start = Number(clipStart.value);
-  const end = Number(clipEnd.value);
-  if (end <= start) {
-    error.textContent = "Invalid clip range";
-    return;
-  }
+  const payload={
+    ratio:ratio.value,
+    text:text.value,
+    textColor:textColor.value,
+    cardColor:cardColor.value,
 
-  btn.disabled = true;
-  loader.classList.add("show");
+    username:username.value,
+    userProfileImageBase64:await toBase64(userProfileImage.value),
 
-  const payload = {
-    text: text.value,
-    ratio: ratio.value,
-    textColor: textColor.value,
-    cardColor: cardColor.value,
-    musicUrl: musicUrl.value,
-    clipStart: start,
-    clipEnd: end
+    songTitle:songTitle.value,
+    artist:artist.value,
+    songImageBase64:await toBase64(songImage.value),
+
+    musicUrl:musicUrl.value,
+    clipStart:start,
+    clipEnd:end
   };
 
-  try {
-    const res = await fetch("/api/generate-card", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+  const r=await fetch("/api/generate-card",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  });
 
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error || "Generation failed");
+  const data=JSON.parse(await r.text());
+  if(!data.success){alert("API failed");return;}
 
-    video.src = data.video;
-    await video.play();
+  const svgData="data:image/svg+xml;base64,"+
+    btoa(unescape(encodeURIComponent(data.svg)));
+  svgPreview.src=svgData;
 
-    const a = document.createElement("a");
-    a.href = data.video;
-    a.download = "video.mp4";
-    a.textContent = "Download video";
-    download.appendChild(a);
+  canvas.width=data.width;
+  canvas.height=data.height;
 
-  } catch (e) {
-    error.textContent = e.message;
-  } finally {
-    loader.classList.remove("show");
-    btn.disabled = false;
-  }
+  const ctx=canvas.getContext("2d");
+  const img=new Image();
+  img.src=svgData;
+  await img.decode();
+
+  const audio=new Audio(data.audio);
+  audio.currentTime=data.clipStart;
+
+  const stream=canvas.captureStream(30);
+  const ac=new AudioContext();
+  const src=ac.createMediaElementSource(audio);
+  const dest=ac.createMediaStreamDestination();
+  src.connect(dest); src.connect(ac.destination);
+  stream.addTrack(dest.stream.getAudioTracks()[0]);
+
+  const rec=new MediaRecorder(stream,{mimeType:"video/webm"});
+  const chunks=[];
+  rec.ondataavailable=e=>chunks.push(e.data);
+  rec.onstop=()=>{
+    const blob=new Blob(chunks,{type:"video/webm"});
+    const url=URL.createObjectURL(blob);
+    videoPreview.src=url;
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="video.webm";
+    a.click();
+  };
+
+  rec.start();
+  audio.play();
+
+  const loop=setInterval(()=>{
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  },33);
+
+  setTimeout(()=>{
+    clearInterval(loop);
+    rec.stop();
+    audio.pause();
+    ac.close();
+  },data.clipDuration*1000);
 }
 </script>
 </body>
