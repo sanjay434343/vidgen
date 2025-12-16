@@ -2,13 +2,13 @@
   "name": "card-video-generator-api",
   "version": "1.0.0",
   "type": "module",
-  "description": "API-based card video generator for Vercel",
+  "engines": {
+    "node": ">=18.x"
+  },
   "dependencies": {
     "node-fetch": "^2.6.7",
     "ffmpeg-static": "^5.2.0",
-    "fluent-ffmpeg": "^2.1.2"
-  },
-  "engines": {
-    "node": ">=18.x"
+    "fluent-ffmpeg": "^2.1.2",
+    "canvas": "^2.11.2"
   }
 }
