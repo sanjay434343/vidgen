@@ -1,36 +1,251 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>VidGen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  }
+
+  body {
+    margin: 0;
+    background: #0f172a;
+    color: #e5e7eb;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 1100px;
+    background: #020617;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .panel {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 12px;
+  }
+
+  textarea,
+  input {
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px;
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e5e7eb;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    background: #38bdf8;
+    color: #020617;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .preview-box {
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 14px;
+    border: 1px solid #1e293b;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview-box img,
+  .preview-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  .preview-title {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #94a3b8;
+  }
+</style>
+</head>
+
 <body>
 
-<textarea id="text">HELLO WORLD</textarea><br>
-<input type="color" id="textColor" value="#ff0000"><br>
-<input type="color" id="cardColor" value="#ffffff"><br>
-<input id="musicUrl" placeholder="https://example.com/music.mp3"><br>
-<button onclick="run()">Generate</button>
+<div class="app">
+  <header>
+    <h1>VidGen</h1>
+    <p>Text → Card → Video</p>
+  </header>
 
-<pre id="log"></pre>
+  <div class="grid">
+
+    <!-- INPUT PANEL -->
+    <div class="panel">
+      <label>Text</label>
+      <textarea id="text">HELLO WORLD</textarea>
+
+      <label>Text Color</label>
+      <input type="color" id="textColor" value="#ff0000" />
+
+      <label>Card Background</label>
+      <input type="color" id="cardColor" value="#ffffff" />
+
+      <label>Music URL</label>
+      <input id="musicUrl" placeholder="https://example.com/music.mp3" />
+
+      <button onclick="generate()">Generate</button>
+    </div>
+
+    <!-- PREVIEW PANEL -->
+    <div class="panel">
+      <div class="preview-title">SVG Preview</div>
+      <div class="preview-box">
+        <img id="svgPreview" />
+      </div>
+
+      <div class="preview-title">Video Preview</div>
+      <div class="preview-box">
+        <video id="videoPreview" controls></video>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<canvas id="canvas" width="1920" height="1080" style="display:none"></canvas>
 
 <script>
-async function run() {
+async function generate() {
+  const payload = {
+    text: text.value,
+    textColor: textColor.value,
+    cardColor: cardColor.value,
+    musicUrl: musicUrl.value
+  };
+
+  // -------- Call API --------
   const res = await fetch("/api/generate-card", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: text.value,
-      textColor: textColor.value,
-      cardColor: cardColor.value,
-      musicUrl: musicUrl.value
-    })
+    body: JSON.stringify(payload)
   });
 
   const raw = await res.text();
-
+  let data;
   try {
-    const json = JSON.parse(raw);
-    log.textContent = "SUCCESS:\n" + JSON.stringify(json, null, 2);
+    data = JSON.parse(raw);
   } catch {
-    log.textContent = "NOT JSON:\n" + raw;
+    alert("Server did not return JSON:\n" + raw);
+    return;
   }
+
+  if (!data.success) {
+    alert("API error");
+    return;
+  }
+
+  // -------- SVG Preview --------
+  const svgData =
+    "data:image/svg+xml;base64," +
+    btoa(unescape(encodeURIComponent(data.svg)));
+
+  svgPreview.src = svgData;
+
+  // -------- Video Generation --------
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const img = new Image();
+  img.src = svgData;
+  await img.decode();
+
+  const audio = new Audio(data.audio);
+  await audio.play().catch(() => {});
+  audio.pause();
+
+  const stream = canvas.captureStream(30);
+
+  const audioCtx = new AudioContext();
+  const src = audioCtx.createMediaElementSource(audio);
+  const dest = audioCtx.createMediaStreamDestination();
+  src.connect(dest);
+  src.connect(audioCtx.destination);
+  stream.addTrack(dest.stream.getAudioTracks()[0]);
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm;codecs=vp8,opus"
+  });
+
+  const chunks = [];
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    videoPreview.src = URL.createObjectURL(new Blob(chunks));
+  };
+
+  recorder.start();
+  audio.play();
+
+  const drawLoop = setInterval(() => {
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  }, 33);
+
+  setTimeout(() => {
+    clearInterval(drawLoop);
+    recorder.stop();
+    audio.pause();
+    audioCtx.close();
+  }, audio.duration * 1000);
 }
 </script>
 
