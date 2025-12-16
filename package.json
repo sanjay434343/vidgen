@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "engines": {
-    "node": ">=18.x"
+    "node": "18.x"
   },
   "dependencies": {
     "node-fetch": "^2.6.7",
     "ffmpeg-static": "^5.2.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "canvas": "^2.11.2"
+    "fluent-ffmpeg": "^2.1.2"
   }
 }
