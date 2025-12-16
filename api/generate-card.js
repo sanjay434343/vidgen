@@ -17,9 +17,9 @@ export default async function handler(req, res) {
   try {
     const {
       text,
-      bgColor = "#020617",
-      textColor = "#ffffff",
-      fontSize = 64,
+      bgColor = "#ffffff",
+      textColor = "#ff0000",
+      fontSize = 72,
       musicUrl = ""
     } = req.body || {};
 
@@ -33,38 +33,17 @@ export default async function handler(req, res) {
     const canvas = createCanvas(WIDTH, HEIGHT);
     const ctx = canvas.getContext("2d");
 
-    /* ---------- Background ---------- */
+    // ---------- BACKGROUND ----------
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    /* ---------- Text Setup ---------- */
+    // ---------- TEXT (GUARANTEED VISIBLE) ----------
     ctx.fillStyle = textColor;
-    ctx.font = `bold ${fontSize}px system-ui`;
+    ctx.font = `${fontSize}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // IMPORTANT: remove all shadows & offsets
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-
-    /* ---------- Text Wrapping ---------- */
-    const maxWidth = WIDTH * 0.8;
-    const lineHeight = fontSize * 1.3;
-    const lines = wrapText(ctx, text, maxWidth);
-
-    /* ---------- PERFECT CENTER ---------- */
-    const totalHeight = lines.length * lineHeight;
-    let startY = (HEIGHT / 2) - (totalHeight / 2) + (lineHeight / 2);
-
-    lines.forEach((line, i) => {
-      ctx.fillText(
-        line,
-        WIDTH / 2,
-        startY + i * lineHeight
-      );
-    });
+    ctx.fillText(text, WIDTH / 2, HEIGHT / 2);
 
     const buffer = canvas.toBuffer("image/png");
     const base64 = buffer.toString("base64");
@@ -72,34 +51,11 @@ export default async function handler(req, res) {
     return res.json({
       success: true,
       image: `data:image/png;base64,${base64}`,
-      music: musicUrl,
-      duration: 8
+      music: musicUrl
     });
 
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Failed to generate card" });
+    return res.status(500).json({ error: "Render failed" });
   }
-}
-
-/* ---------- Helper ---------- */
-function wrapText(ctx, text, maxWidth) {
-  const words = text.split(" ");
-  const lines = [];
-  let line = "";
-
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-
-    if (metrics.width > maxWidth && i > 0) {
-      lines.push(line.trim());
-      line = words[i] + " ";
-    } else {
-      line = testLine;
-    }
-  }
-
-  lines.push(line.trim());
-  return lines;
 }
