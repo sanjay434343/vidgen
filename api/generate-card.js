@@ -133,10 +133,10 @@ function generateSVG({
 <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
   <defs>
     <clipPath id="userCircle">
-      <circle cx="${avatar / 2}" cy="${avatar / 2}" r="${avatar / 2}" />
+      <circle cx="${userLeft + avatar / 2}" cy="${safe + avatar / 2}" r="${avatar / 2}" />
     </clipPath>
     <clipPath id="songCircle">
-      <circle cx="${songSize / 2}" cy="${songSize / 2}" r="${songSize / 2}" />
+      <circle cx="${songLeft + songSize / 2}" cy="${h - songSize - safe + songSize / 2}" r="${songSize / 2}" />
     </clipPath>
   </defs>
 
@@ -147,7 +147,7 @@ function generateSVG({
       ? `<image href="${userProfileImageBase64}"
           x="${userLeft}" y="${safe}"
           width="${avatar}" height="${avatar}"
-          clip-path="url(#userCircle)" />`
+          clip-path="url(#userCircle)" preserveAspectRatio="xMidYMid slice" />`
       : ""
   }
 
@@ -179,13 +179,13 @@ function generateSVG({
       ? `<image href="${songImageBase64}"
           x="${songLeft}" y="${h - songSize - safe}"
           width="${songSize}" height="${songSize}"
-          clip-path="url(#songCircle)" />`
+          clip-path="url(#songCircle)" preserveAspectRatio="xMidYMid slice" />`
       : ""
   }
 
   <text
     x="${songLeft + songSize + 14}"
-    y="${h - songSize - safe + 42}"
+    y="${h - songSize - safe + songSize * 0.35}"
     fill="${textColor}"
     font-size="${Math.round(w * 0.018)}"
     font-family="Arial"
@@ -195,7 +195,7 @@ function generateSVG({
 
   <text
     x="${songLeft + songSize + 14}"
-    y="${h - songSize - safe + 78}"
+    y="${h - songSize - safe + songSize * 0.65}"
     fill="${textColor}"
     font-size="${Math.round(w * 0.014)}"
     font-family="Arial">
