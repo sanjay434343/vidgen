@@ -55,7 +55,6 @@ button {
   border:none;
   border-radius:10px;
   font-weight:700;
-  cursor:pointer;
 }
 .preview {
   background:#000;
@@ -76,9 +75,6 @@ button {
 <div class="grid">
 
 <div class="panel">
-  <label>User ID</label>
-  <input id="uid">
-
   <label>User Name</label>
   <input id="username">
 
@@ -133,7 +129,7 @@ button {
 <canvas id="canvas" style="display:none"></canvas>
 
 <script>
-async function urlToBase64(url){
+async function toBase64(url){
   if(!url) return "";
   const r=await fetch(url);
   const b=await r.blob();
@@ -149,22 +145,18 @@ async function generate(){
   const end=Number(clipEnd.value);
   if(end<=start){alert("Invalid clip range");return;}
 
-  const songImg64 = await urlToBase64(songImage.value);
-  const userImg64 = await urlToBase64(userProfileImage.value);
-
   const payload={
     ratio:ratio.value,
     text:text.value,
     textColor:textColor.value,
     cardColor:cardColor.value,
 
-    uid:uid.value,
     username:username.value,
-    userProfileImage:userImg64,
+    userProfileImageBase64:await toBase64(userProfileImage.value),
 
     songTitle:songTitle.value,
     artist:artist.value,
-    songImage:songImg64,
+    songImageBase64:await toBase64(songImage.value),
 
     musicUrl:musicUrl.value,
     clipStart:start,
