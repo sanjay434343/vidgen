@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>VidGen</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
 body {
   background:#0f172a;
@@ -55,7 +54,6 @@ button {
   border:none;
   border-radius:10px;
   font-weight:700;
-  cursor:pointer;
 }
 .preview {
   background:#000;
@@ -73,52 +71,61 @@ button {
 
 <body>
 <div class="app">
-  <div class="grid">
+<div class="grid">
 
-    <div class="panel">
-      <label>Aspect Ratio</label>
-      <select id="ratio">
-        <option value="1:1">1:1</option>
-        <option value="9:16">9:16</option>
-        <option value="16:9" selected>16:9</option>
-      </select>
+<div class="panel">
+  <label>User ID</label>
+  <input id="uid" placeholder="uid123">
 
-      <label>Main Text</label>
-      <textarea id="text">HELLO WORLD</textarea>
+  <label>User Name</label>
+  <input id="username" placeholder="Sanju">
 
-      <label>Text Color</label>
-      <input type="color" id="textColor" value="#ffffff">
+  <label>User Profile Image URL</label>
+  <input id="userProfileImage">
 
-      <label>Background Color</label>
-      <input type="color" id="cardColor" value="#000000">
+  <label>Aspect Ratio</label>
+  <select id="ratio">
+    <option value="1:1">1:1</option>
+    <option value="9:16">9:16</option>
+    <option value="16:9" selected>16:9</option>
+  </select>
 
-      <label>Song Title</label>
-      <input id="songTitle">
+  <label>Main Text</label>
+  <textarea id="text">HELLO WORLD</textarea>
 
-      <label>Artist</label>
-      <input id="artist">
+  <label>Text Color</label>
+  <input type="color" id="textColor" value="#ffffff">
 
-      <label>Song Image URL</label>
-      <input id="songImage">
+  <label>Background Color</label>
+  <input type="color" id="cardColor" value="#000000">
 
-      <label>Music URL</label>
-      <input id="musicUrl">
+  <label>Song Title</label>
+  <input id="songTitle">
 
-      <label>Clip Start (sec)</label>
-      <input id="clipStart" type="number" step="0.1">
+  <label>Artist</label>
+  <input id="artist">
 
-      <label>Clip End (sec)</label>
-      <input id="clipEnd" type="number" step="0.1">
+  <label>Song Image URL</label>
+  <input id="songImage">
 
-      <button onclick="generate()">Generate & Download</button>
-    </div>
+  <label>Music URL</label>
+  <input id="musicUrl">
 
-    <div class="panel">
-      <div class="preview"><img id="svgPreview"></div><br>
-      <div class="preview"><video id="videoPreview" controls></video></div>
-    </div>
+  <label>Clip Start (sec)</label>
+  <input id="clipStart" type="number" step="0.1">
 
-  </div>
+  <label>Clip End (sec)</label>
+  <input id="clipEnd" type="number" step="0.1">
+
+  <button onclick="generate()">Generate & Download</button>
+</div>
+
+<div class="panel">
+  <div class="preview"><img id="svgPreview"></div><br>
+  <div class="preview"><video id="videoPreview" controls></video></div>
+</div>
+
+</div>
 </div>
 
 <canvas id="canvas" style="display:none"></canvas>
@@ -140,16 +147,23 @@ async function generate(){
   const end=Number(clipEnd.value);
   if(end<=start){alert("Invalid clip range");return;}
 
-  const img64 = await urlToBase64(songImage.value);
+  const songImg64 = await urlToBase64(songImage.value);
+  const userImg64 = await urlToBase64(userProfileImage.value);
 
   const payload={
     ratio:ratio.value,
     text:text.value,
     textColor:textColor.value,
     cardColor:cardColor.value,
+
+    uid:uid.value,
+    username:username.value,
+    userProfileImage:userImg64,
+
     songTitle:songTitle.value,
     artist:artist.value,
-    songImage:img64,
+    songImage:songImg64,
+
     musicUrl:musicUrl.value,
     clipStart:start,
     clipEnd:end
@@ -193,7 +207,6 @@ async function generate(){
     const blob=new Blob(chunks,{type:"video/webm"});
     const url=URL.createObjectURL(blob);
     videoPreview.src=url;
-
     const a=document.createElement("a");
     a.href=url;
     a.download="video.webm";
