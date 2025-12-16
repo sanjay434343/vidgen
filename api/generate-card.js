@@ -122,21 +122,25 @@ function generateSVG({
   artist,
   songImageBase64
 }) {
-  const safe = Math.min(w, h) * 0.05;
-  const avatar = Math.min(w, h) * 0.09;
-  const songSize = Math.min(w, h) * 0.12;
+  const padding = Math.min(w, h) * 0.04;
+  const avatar = Math.min(w, h) * 0.08;
+  const songSize = Math.min(w, h) * 0.11;
+  const gap = Math.min(w, h) * 0.015;
 
-  const userLeft = safe * 2.2;
-  const songLeft = safe;
+  const userTop = padding;
+  const userLeft = padding;
+  
+  const songBottom = padding;
+  const songLeft = padding;
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
   <defs>
     <clipPath id="userCircle">
-      <circle cx="${userLeft + avatar / 2}" cy="${safe + avatar / 2}" r="${avatar / 2}" />
+      <circle cx="${userLeft + avatar / 2}" cy="${userTop + avatar / 2}" r="${avatar / 2}" />
     </clipPath>
     <clipPath id="songCircle">
-      <circle cx="${songLeft + songSize / 2}" cy="${h - songSize - safe + songSize / 2}" r="${songSize / 2}" />
+      <circle cx="${songLeft + songSize / 2}" cy="${h - songBottom - songSize + songSize / 2}" r="${songSize / 2}" />
     </clipPath>
   </defs>
 
@@ -145,62 +149,77 @@ function generateSVG({
   ${
     userProfileImageBase64
       ? `<image href="${userProfileImageBase64}"
-          x="${userLeft}" y="${safe}"
+          x="${userLeft}" y="${userTop}"
           width="${avatar}" height="${avatar}"
           clip-path="url(#userCircle)" preserveAspectRatio="xMidYMid slice" />`
       : ""
   }
 
-  <text
-    x="${userLeft + avatar + 14}"
-    y="${safe + avatar / 2}"
-    fill="#ffffff"
-    font-size="${Math.round(w * 0.02)}"
-    dominant-baseline="middle"
-    font-family="Arial"
-    font-weight="600">
-    ${escapeXml(username)}
-  </text>
+  ${
+    username
+      ? `<text
+          x="${userLeft + avatar + gap}"
+          y="${userTop + avatar / 2}"
+          fill="${textColor}"
+          font-size="${Math.round(w * 0.022)}"
+          dominant-baseline="middle"
+          font-family="Arial, sans-serif"
+          font-weight="700">
+          ${escapeXml(username)}
+        </text>`
+      : ""
+  }
 
   <text
     x="${w / 2}"
     y="${h / 2}"
     fill="${textColor}"
-    font-size="${Math.round(w * 0.045)}"
+    font-size="${Math.round(w * 0.05)}"
     text-anchor="middle"
     dominant-baseline="middle"
-    font-family="Arial"
-    font-weight="700">
+    font-family="Arial, sans-serif"
+    font-weight="800"
+    letter-spacing="1">
     ${escapeXml(text)}
   </text>
 
   ${
     songImageBase64
       ? `<image href="${songImageBase64}"
-          x="${songLeft}" y="${h - songSize - safe}"
+          x="${songLeft}" y="${h - songBottom - songSize}"
           width="${songSize}" height="${songSize}"
           clip-path="url(#songCircle)" preserveAspectRatio="xMidYMid slice" />`
       : ""
   }
 
-  <text
-    x="${songLeft + songSize + 14}"
-    y="${h - songSize - safe + songSize * 0.35}"
-    fill="${textColor}"
-    font-size="${Math.round(w * 0.018)}"
-    font-family="Arial"
-    font-weight="600">
-    ${escapeXml(songTitle)}
-  </text>
+  ${
+    songTitle
+      ? `<text
+          x="${songLeft + songSize + gap}"
+          y="${h - songBottom - songSize + songSize * 0.4}"
+          fill="${textColor}"
+          font-size="${Math.round(w * 0.02)}"
+          font-family="Arial, sans-serif"
+          font-weight="700">
+          ${escapeXml(songTitle)}
+        </text>`
+      : ""
+  }
 
-  <text
-    x="${songLeft + songSize + 14}"
-    y="${h - songSize - safe + songSize * 0.65}"
-    fill="${textColor}"
-    font-size="${Math.round(w * 0.014)}"
-    font-family="Arial">
-    ${escapeXml(artist)}
-  </text>
+  ${
+    artist
+      ? `<text
+          x="${songLeft + songSize + gap}"
+          y="${h - songBottom - songSize + songSize * 0.7}"
+          fill="${textColor}"
+          opacity="0.85"
+          font-size="${Math.round(w * 0.016)}"
+          font-family="Arial, sans-serif"
+          font-weight="400">
+          ${escapeXml(artist)}
+        </text>`
+      : ""
+  }
 </svg>`;
 }
 
