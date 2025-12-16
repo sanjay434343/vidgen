@@ -1,138 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Card Video Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-.container {
-  max-width: 1000px;
-  width: 100%;
-  background: #020617;
-  padding: 20px;
-  border-radius: 12px;
-}
-input, textarea, button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-}
-button {
-  background: #38bdf8;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
-.preview {
-  margin-top: 20px;
-}
-video {
-  width: 100%;
-  margin-top: 10px;
-}
-</style>
-</head>
-
+<html>
 <body>
-<div class="container">
-  <h2>🎬 Card Video Generator</h2>
 
-  <textarea id="text">HELLO WORLD</textarea>
-  <input type="color" id="textColor" value="#ff0000">
-  <input type="color" id="cardColor" value="#ffffff">
-  <input id="musicUrl" placeholder="https://example.com/music.mp3">
+<textarea id="text">HELLO WORLD</textarea><br>
+<input type="color" id="textColor" value="#ff0000"><br>
+<input type="color" id="cardColor" value="#ffffff"><br>
+<input id="musicUrl" placeholder="https://example.com/music.mp3"><br>
+<button onclick="run()">Generate</button>
 
-  <button onclick="generate()">Generate Video</button>
-
-  <div class="preview">
-    <video id="video" controls></video>
-  </div>
-</div>
-
-<canvas id="canvas" width="1920" height="1080" style="display:none"></canvas>
+<pre id="log"></pre>
 
 <script>
-async function generate() {
-  const payload = {
-    text: text.value,
-    textColor: textColor.value,
-    cardColor: cardColor.value,
-    musicUrl: musicUrl.value
-  };
-
-  const res = await fetch("/api/generate_card", {
+async function run() {
+  const res = await fetch("/api/generate-card", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      text: text.value,
+      textColor: textColor.value,
+      cardColor: cardColor.value,
+      musicUrl: musicUrl.value
+    })
   });
 
   const raw = await res.text();
-  let data;
+
   try {
-    data = JSON.parse(raw);
+    const json = JSON.parse(raw);
+    log.textContent = "SUCCESS:\n" + JSON.stringify(json, null, 2);
   } catch {
-    alert("Server did not return JSON:\n" + raw);
-    return;
+    log.textContent = "NOT JSON:\n" + raw;
   }
-
-  if (!data.success) {
-    alert("API Error");
-    return;
-  }
-
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-
-  const img = new Image();
-  img.src = "data:image/svg+xml;base64," + btoa(data.svgFrame);
-
-  await img.decode();
-
-  const audio = new Audio(data.musicData);
-  await audio.play().catch(()=>{});
-  audio.pause();
-
-  const stream = canvas.captureStream(30);
-  const audioCtx = new AudioContext();
-  const src = audioCtx.createMediaElementSource(audio);
-  const dest = audioCtx.createMediaStreamDestination();
-  src.connect(dest);
-  src.connect(audioCtx.destination);
-  stream.addTrack(dest.stream.getAudioTracks()[0]);
-
-  const recorder = new MediaRecorder(stream, {
-    mimeType: "video/webm;codecs=vp8,opus"
-  });
-
-  const chunks = [];
-  recorder.ondataavailable = e => chunks.push(e.data);
-  recorder.onstop = () => {
-    video.src = URL.createObjectURL(new Blob(chunks));
-  };
-
-  recorder.start();
-  audio.play();
-
-  const interval = setInterval(() => {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  }, 33);
-
-  setTimeout(() => {
-    clearInterval(interval);
-    recorder.stop();
-    audio.pause();
-    audioCtx.close();
-  }, audio.duration * 1000);
 }
 </script>
+
 </body>
 </html>
