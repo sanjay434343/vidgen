@@ -3,7 +3,6 @@ import fs from "fs";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegPath from "ffmpeg-static";
-import { createCanvas, loadImage } from "canvas";
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -13,7 +12,6 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  // ---------------- CORS ----------------
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -29,11 +27,6 @@ export default async function handler(req, res) {
       text,
       textColor = "#ffffff",
       cardColor = "#000000",
-      username = "",
-      userProfileImageBase64 = "",
-      songTitle = "",
-      artist = "",
-      songImageBase64 = "",
       musicUrl,
       clipStart,
       clipEnd
@@ -49,7 +42,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: "Invalid clip range" });
     }
 
-    const duration = Math.min(end - start, 10); // SAFE LIMIT
+    const duration = Math.min(end - start, 10);
 
     const RATIOS = {
       "1:1": { w: 1080, h: 1080 },
@@ -60,42 +53,38 @@ export default async function handler(req, res) {
 
     const TMP = "/tmp";
     const svgPath = path.join(TMP, "card.svg");
-    const pngPath = path.join(TMP, "card.png");
     const audioPath = path.join(TMP, "audio.mp3");
     const videoPath = path.join(TMP, "output.mp4");
 
-    // ---------------- SVG ----------------
-    const svg = generateSVG({
-      w,
-      h,
-      text,
-      textColor,
-      cardColor,
-      username,
-      userProfileImageBase64,
-      songTitle,
-      artist,
-      songImageBase64
-    });
+    // ---------- SVG ----------
+    const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+  <rect width="100%" height="100%" fill="${cardColor}"/>
+  <text x="50%" y="50%"
+    fill="${textColor}"
+    font-size="${Math.round(w * 0.06)}"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="Arial"
+    font-weight="800">
+    ${escapeXml(text)}
+  </text>
+</svg>`;
     fs.writeFileSync(svgPath, svg);
 
-    // ---------------- SVG → PNG ----------------
-    const canvas = createCanvas(w, h);
-    const ctx = canvas.getContext("2d");
-    const img = await loadImage(`data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`);
-    ctx.drawImage(img, 0, 0, w, h);
-    fs.writeFileSync(pngPath, canvas.toBuffer("image/png"));
-
-    // ---------------- AUDIO ----------------
+    // ---------- AUDIO ----------
     const audioRes = await fetch(musicUrl);
     if (!audioRes.ok) throw new Error("Audio fetch failed");
     fs.writeFileSync(audioPath, Buffer.from(await audioRes.arrayBuffer()));
 
-    // ---------------- FFMPEG ----------------
+    // ---------- FFMPEG (SVG → MP4) ----------
     await new Promise((resolve, reject) => {
       ffmpeg()
-        .input(pngPath)
-        .inputOptions(["-loop 1"])
+        .input(svgPath)
+        .inputOptions([
+          "-loop 1",
+          "-f svg"
+        ])
         .input(audioPath)
         .setStartTime(start)
         .duration(duration)
@@ -104,7 +93,8 @@ export default async function handler(req, res) {
           "-preset ultrafast",
           "-tune stillimage",
           "-movflags +faststart",
-          "-shortest"
+          "-shortest",
+          `-vf scale=${w}:${h}`
         ])
         .save(videoPath)
         .on("end", resolve)
@@ -116,9 +106,9 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       video: `data:video/mp4;base64,${videoBase64}`,
-      duration,
       width: w,
-      height: h
+      height: h,
+      duration
     });
 
   } catch (err) {
@@ -130,28 +120,7 @@ export default async function handler(req, res) {
   }
 }
 
-/* ================= SVG ================= */
-
-function generateSVG({
-  w, h, text, textColor, cardColor,
-  username, userProfileImageBase64,
-  songTitle, artist, songImageBase64
-}) {
-  return `
-<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-  <rect width="100%" height="100%" fill="${cardColor}"/>
-  <text x="50%" y="50%" fill="${textColor}"
-    font-size="${Math.round(w * 0.05)}"
-    text-anchor="middle"
-    dominant-baseline="middle"
-    font-family="Arial"
-    font-weight="800">
-    ${escapeXml(text)}
-  </text>
-</svg>`;
-}
-
-function escapeXml(str="") {
+function escapeXml(str = "") {
   return str.replace(/[<>&"]/g, c =>
     ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", "\"":"&quot;" }[c])
   );
