@@ -27,39 +27,43 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Text is required" });
     }
 
-    const width = 1080;
-    const height = 1920;
+    const WIDTH = 1080;
+    const HEIGHT = 1920;
 
-    const canvas = createCanvas(width, height);
+    const canvas = createCanvas(WIDTH, HEIGHT);
     const ctx = canvas.getContext("2d");
 
-    // ---------- Background ----------
+    /* ---------- Background ---------- */
     ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // ---------- Text Settings ----------
-    ctx.font = `700 ${fontSize}px system-ui`;
+    /* ---------- Text Setup ---------- */
     ctx.fillStyle = textColor;
+    ctx.font = `bold ${fontSize}px system-ui`;
     ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
+    ctx.textBaseline = "middle";
 
-    // Optional: improve visibility
-    ctx.shadowColor = "rgba(0,0,0,0.35)";
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 4;
+    // IMPORTANT: remove all shadows & offsets
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
-    // ---------- Wrap text ----------
-    const maxWidth = width * 0.82;
-    const lineHeight = fontSize * 1.35;
-    const lines = getWrappedLines(ctx, text, maxWidth);
+    /* ---------- Text Wrapping ---------- */
+    const maxWidth = WIDTH * 0.8;
+    const lineHeight = fontSize * 1.3;
+    const lines = wrapText(ctx, text, maxWidth);
 
-    // ---------- TRUE vertical centering ----------
-    const totalTextHeight = lines.length * lineHeight;
-    let y = (height - totalTextHeight) / 2 + fontSize;
+    /* ---------- PERFECT CENTER ---------- */
+    const totalHeight = lines.length * lineHeight;
+    let startY = (HEIGHT / 2) - (totalHeight / 2) + (lineHeight / 2);
 
-    lines.forEach(line => {
-      ctx.fillText(line, width / 2, y);
-      y += lineHeight;
+    lines.forEach((line, i) => {
+      ctx.fillText(
+        line,
+        WIDTH / 2,
+        startY + i * lineHeight
+      );
     });
 
     const buffer = canvas.toBuffer("image/png");
@@ -78,18 +82,17 @@ export default async function handler(req, res) {
   }
 }
 
-/* ---------- Helpers ---------- */
-
-function getWrappedLines(ctx, text, maxWidth) {
+/* ---------- Helper ---------- */
+function wrapText(ctx, text, maxWidth) {
   const words = text.split(" ");
   const lines = [];
   let line = "";
 
   for (let i = 0; i < words.length; i++) {
     const testLine = line + words[i] + " ";
-    const { width } = ctx.measureText(testLine);
+    const metrics = ctx.measureText(testLine);
 
-    if (width > maxWidth && i > 0) {
+    if (metrics.width > maxWidth && i > 0) {
       lines.push(line.trim());
       line = words[i] + " ";
     } else {
