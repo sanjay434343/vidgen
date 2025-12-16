@@ -25,76 +25,104 @@ export default async function handler(req, res) {
       artist = "",
       songImage = "",
       musicUrl,
-      clipStart = 0,
-      clipDuration = 15
+      clipStart,
+      clipEnd,
+      ratio = "16:9"   // NEW
     } = req.body || {};
 
     if (!text || !musicUrl) {
-      return res.status(400).json({ error: "Text and musicUrl required" });
+      return res.status(400).json({ error: "text and musicUrl required" });
     }
 
-    // ---------------- SVG GENERATION ----------------
+    const start = Number(clipStart ?? 0);
+    const end = Number(clipEnd ?? 0);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+      return res.status(400).json({ error: "Invalid clipStart / clipEnd" });
+    }
+
+    const clipDuration = end - start;
+
+    // ---------------- RATIO CONFIG ----------------
+    const RATIO_MAP = {
+      "1:1":  { w: 1080, h: 1080 },
+      "9:16": { w: 1080, h: 1920 },
+      "16:9": { w: 1920, h: 1080 }
+    };
+
+    const { w, h } = RATIO_MAP[ratio] || RATIO_MAP["16:9"];
+
+    // ---------------- SVG ----------------
     const svg = generateSVG({
+      w, h,
       text,
       textColor,
       cardColor,
       songTitle,
       artist,
-      songImage
+      songImage,
+      clipStart: start,
+      clipEnd: end
     });
 
-    // ---------------- AUDIO FETCH ----------------
+    // ---------------- AUDIO ----------------
     const audioRes = await fetch(musicUrl);
     if (!audioRes.ok) {
       return res.status(400).json({ error: "Failed to fetch audio" });
     }
 
     const audioBuffer = Buffer.from(await audioRes.arrayBuffer());
-
-    // ⚠️ NOTE:
-    // True audio clipping requires FFmpeg (not allowed on Vercel).
-    // So we return full audio + metadata for client-side clipping.
-    // This is the ONLY safe approach on Vercel.
-
     const mime = getMimeType(musicUrl);
 
     return res.json({
       success: true,
       svg,
       audio: `data:${mime};base64,${audioBuffer.toString("base64")}`,
-      clipStart,
-      clipDuration
+      clipStart: start,
+      clipEnd: end,
+      clipDuration,
+      width: w,
+      height: h
     });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      error: "Internal error",
-      detail: err.message
-    });
+    return res.status(500).json({ error: err.message });
   }
 }
 
-/* ---------------- HELPERS ---------------- */
+/* ===================================================== */
 
 function generateSVG({
+  w, h,
   text,
   textColor,
   cardColor,
   songTitle,
   artist,
-  songImage
+  songImage,
+  clipStart,
+  clipEnd
 }) {
+  const centerX = w / 2;
+  const centerY = h * 0.45;
+
+  const coverSize = Math.min(w, h) * 0.13;
+  const coverX = w * 0.06;
+  const coverY = h - coverSize - h * 0.06;
+
+  const textX = coverX + coverSize + 30;
+  const titleY = coverY + 45;
+  const artistY = coverY + 85;
+
   return `
-<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
   <rect width="100%" height="100%" fill="${cardColor}" />
 
   <!-- MAIN TEXT -->
   <text
-    x="960"
-    y="520"
+    x="${centerX}"
+    y="${centerY}"
     fill="${textColor}"
-    font-size="90"
+    font-size="${Math.round(w * 0.045)}"
     font-weight="700"
     font-family="Arial, sans-serif"
     text-anchor="middle"
@@ -107,38 +135,51 @@ function generateSVG({
   ${songImage ? `
   <image
     href="${songImage}"
-    x="80"
-    y="820"
-    width="140"
-    height="140"
+    x="${coverX}"
+    y="${coverY}"
+    width="${coverSize}"
+    height="${coverSize}"
     preserveAspectRatio="xMidYMid slice"
   />` : ""}
 
   <!-- SONG TITLE -->
   <text
-    x="250"
-    y="880"
+    x="${textX}"
+    y="${titleY}"
     fill="#ffffff"
-    font-size="36"
-    font-family="Arial, sans-serif"
+    font-size="${Math.round(w * 0.018)}"
     font-weight="600"
+    font-family="Arial, sans-serif"
   >
     ${escapeXml(songTitle)}
   </text>
 
   <!-- ARTIST -->
   <text
-    x="250"
-    y="930"
+    x="${textX}"
+    y="${artistY}"
     fill="#94a3b8"
-    font-size="28"
+    font-size="${Math.round(w * 0.014)}"
     font-family="Arial, sans-serif"
   >
     ${escapeXml(artist)}
   </text>
-</svg>
-`;
+
+  <!-- CLIP INFO -->
+  <text
+    x="${w - 20}"
+    y="${h - 20}"
+    fill="#94a3b8"
+    font-size="${Math.round(w * 0.012)}"
+    font-family="Arial, sans-serif"
+    text-anchor="end"
+  >
+    ${clipStart}s – ${clipEnd}s
+  </text>
+</svg>`;
 }
+
+/* ===================================================== */
 
 function escapeXml(str = "") {
   return str.replace(/[<>&"]/g, c =>
