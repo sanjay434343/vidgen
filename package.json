@@ -4,7 +4,9 @@
   "type": "module",
   "description": "API-based card video generator for Vercel",
   "dependencies": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2"
   },
   "engines": {
     "node": ">=18.x"
