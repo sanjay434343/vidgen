@@ -1,9 +1,12 @@
 {
-  "name": "card-video-generator",
+  "name": "card-video-generator-api",
   "version": "1.0.0",
+  "type": "module",
+  "description": "API-based card video generator for Vercel",
   "dependencies": {
-    "canvas": "^2.11.2",
-    "fluent-ffmpeg": "^2.1.2",
     "node-fetch": "^2.6.7"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
