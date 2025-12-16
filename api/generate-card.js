@@ -6,7 +6,7 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  // ---------- CORS ----------
+  // -------- CORS --------
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -23,13 +23,12 @@ export default async function handler(req, res) {
       textColor = "#ffffff",
       cardColor = "#000000",
 
-      uid = "",
+      // BASE64 IMAGES ONLY
       username = "",
-      userProfileImage = "",
-
+      userProfileImageBase64 = "",
       songTitle = "",
       artist = "",
-      songImage = "",
+      songImageBase64 = "",
 
       musicUrl,
       clipStart,
@@ -56,20 +55,19 @@ export default async function handler(req, res) {
     const { w, h } = RATIOS[ratio] || RATIOS["16:9"];
 
     const svg = generateSVG({
-      w, h,
+      w,
+      h,
       text,
       textColor,
       cardColor,
-      uid,
       username,
-      userProfileImage,
+      userProfileImageBase64,
       songTitle,
       artist,
-      songImage,
-      clipStart: start,
-      clipEnd: end
+      songImageBase64
     });
 
+    // ---- AUDIO ----
     const audioRes = await fetch(musicUrl);
     if (!audioRes.ok) {
       return res.status(400).json({ error: "Failed to fetch audio" });
@@ -83,7 +81,6 @@ export default async function handler(req, res) {
       svg,
       audio: `data:${mime};base64,${audioBuffer.toString("base64")}`,
       clipStart: start,
-      clipEnd: end,
       clipDuration,
       width: w,
       height: h
@@ -94,30 +91,26 @@ export default async function handler(req, res) {
   }
 }
 
-/* ================= SVG ================= */
+/* ================= SVG (BASE64 IMAGES ONLY) ================= */
 
 function generateSVG({
-  w, h,
+  w,
+  h,
   text,
   textColor,
   cardColor,
-  uid,
   username,
-  userProfileImage,
+  userProfileImageBase64,
   songTitle,
   artist,
-  songImage,
-  clipStart,
-  clipEnd
+  songImageBase64
 }) {
   const safe = Math.min(w, h) * 0.05;
-
   const avatar = Math.min(w, h) * 0.09;
   const songSize = Math.min(w, h) * 0.12;
 
-  // Different left offsets (your request)
   const userLeft = safe * 2.2; // pushed inward
-  const songLeft = safe;       // closer to edge
+  const songLeft = safe;       // near edge
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
@@ -132,16 +125,19 @@ function generateSVG({
 
   <rect width="100%" height="100%" fill="${cardColor}" />
 
-  <!-- USER TOP LEFT (INWARD) -->
-  ${userProfileImage ? `
-  <image
-    href="${userProfileImage}"
-    x="${userLeft}"
-    y="${safe}"
-    width="${avatar}"
-    height="${avatar}"
-    clip-path="url(#userCircle)"
-  />` : ""}
+  <!-- USER TOP LEFT -->
+  ${
+    userProfileImageBase64
+      ? `<image
+          href="${userProfileImageBase64}"
+          x="${userLeft}"
+          y="${safe}"
+          width="${avatar}"
+          height="${avatar}"
+          clip-path="url(#userCircle)"
+        />`
+      : ""
+  }
 
   <text
     x="${userLeft + avatar + 14}"
@@ -151,10 +147,10 @@ function generateSVG({
     font-family="Arial, sans-serif"
     font-weight="600"
     dominant-baseline="middle">
-    ${escapeXml(username || uid)}
+    ${escapeXml(username)}
   </text>
 
-  <!-- MAIN TEXT CENTER -->
+  <!-- MAIN TEXT -->
   <text
     x="${w / 2}"
     y="${h / 2}"
@@ -167,16 +163,19 @@ function generateSVG({
     ${escapeXml(text)}
   </text>
 
-  <!-- SONG BOTTOM LEFT (EDGE) -->
-  ${songImage ? `
-  <image
-    href="${songImage}"
-    x="${songLeft}"
-    y="${h - songSize - safe}"
-    width="${songSize}"
-    height="${songSize}"
-    clip-path="url(#songCircle)"
-  />` : ""}
+  <!-- SONG BOTTOM LEFT -->
+  ${
+    songImageBase64
+      ? `<image
+          href="${songImageBase64}"
+          x="${songLeft}"
+          y="${h - songSize - safe}"
+          width="${songSize}"
+          height="${songSize}"
+          clip-path="url(#songCircle)"
+        />`
+      : ""
+  }
 
   <text
     x="${songLeft + songSize + 14}"
@@ -196,22 +195,12 @@ function generateSVG({
     font-family="Arial, sans-serif">
     ${escapeXml(artist)}
   </text>
-
-  <text
-    x="${w - safe}"
-    y="${h - safe}"
-    text-anchor="end"
-    fill="#94a3b8"
-    font-size="${Math.round(w * 0.012)}"
-    font-family="Arial, sans-serif">
-    ${clipStart}s – ${clipEnd}s
-  </text>
 </svg>`;
 }
 
 function escapeXml(str = "") {
   return str.replace(/[<>&"]/g, c =>
-    ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", "\"":"&quot;" }[c])
+    ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "\"": "&quot;" }[c])
   );
 }
 
