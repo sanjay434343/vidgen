@@ -74,8 +74,7 @@
 
         .form-group input[type="text"],
         .form-group input[type="url"],
-        .form-group textarea,
-        .form-group input[type="file"] {
+        .form-group textarea {
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -231,6 +230,12 @@
             display: none;
         }
 
+        .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 4px;
+        }
+
         @media (max-width: 768px) {
             .content {
                 grid-template-columns: 1fr;
@@ -246,7 +251,7 @@
     <div class="container">
         <div class="header">
             <h1>🎬 Card Video Generator</h1>
-            <p>Create beautiful video cards with text and music</p>
+            <p>Create beautiful video cards with text and music via API</p>
         </div>
 
         <div class="content">
@@ -273,11 +278,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="musicFile">Upload Music File (MP3/WAV):</label>
-                    <input type="file" id="musicFile" accept="audio/*">
+                    <label for="musicUrl">Music URL (MP3/WAV):</label>
+                    <input type="url" id="musicUrl" placeholder="https://example.com/music.mp3">
+                    <div class="help-text">Enter a direct link to an audio file</div>
                 </div>
 
-                <button class="btn" id="generateBtn">Generate Video</button>
+                <button class="btn" id="generateBtn">Generate Video via API</button>
 
                 <div id="status"></div>
             </div>
@@ -306,7 +312,7 @@
         const textColorPicker = document.getElementById('textColorPicker');
         const cardColorInput = document.getElementById('cardColor');
         const cardColorPicker = document.getElementById('cardColorPicker');
-        const musicFileInput = document.getElementById('musicFile');
+        const musicUrlInput = document.getElementById('musicUrl');
         const generateBtn = document.getElementById('generateBtn');
         const cardPreview = document.getElementById('cardPreview');
         const previewText = document.getElementById('previewText');
@@ -319,8 +325,6 @@
 
         canvas.width = 1920;
         canvas.height = 1080;
-
-        let audioFile = null;
 
         // Sync color inputs
         textColorPicker.addEventListener('input', (e) => {
@@ -345,13 +349,13 @@
 
         textInput.addEventListener('input', updatePreview);
 
-        musicFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                audioFile = file;
-                const url = URL.createObjectURL(file);
+        musicUrlInput.addEventListener('input', () => {
+            const url = musicUrlInput.value.trim();
+            if (url) {
                 audioPreview.src = url;
                 audioPreview.style.display = 'block';
+            } else {
+                audioPreview.style.display = 'none';
             }
         });
 
@@ -396,27 +400,55 @@
         }
 
         generateBtn.addEventListener('click', async () => {
-            if (!audioFile) {
-                showStatus('Please upload a music file!', 'error');
+            const text = textInput.value.trim();
+            const textColor = textColorInput.value;
+            const cardColor = cardColorInput.value;
+            const musicUrl = musicUrlInput.value.trim();
+
+            if (!text || !musicUrl) {
+                showStatus('Please fill in all fields!', 'error');
                 return;
             }
 
             generateBtn.disabled = true;
             downloadBtn.style.display = 'none';
             videoPreview.style.display = 'none';
-            showStatus('Generating video... This may take a moment.', 'loading');
+            showStatus('Calling API to fetch music and generate video...', 'loading');
 
             try {
-                const audioUrl = URL.createObjectURL(audioFile);
-                const audio = new Audio(audioUrl);
+                // Call the API
+                const response = await fetch('/api/generate_card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text,
+                        textColor,
+                        cardColor,
+                        musicUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to call API');
+                }
+
+                const data = await response.json();
                 
-                await new Promise((resolve) => {
+                showStatus('API response received! Generating video from data...', 'loading');
+
+                // Create audio element from base64
+                const audio = new Audio(data.musicData);
+                
+                await new Promise((resolve, reject) => {
                     audio.addEventListener('loadedmetadata', resolve);
+                    audio.addEventListener('error', reject);
                 });
 
                 const duration = audio.duration;
                 const fps = 30;
-                const totalFrames = Math.ceil(duration * fps);
 
                 const stream = canvas.captureStream(fps);
                 const audioContext = new AudioContext();
@@ -448,7 +480,7 @@
                     downloadBtn.href = url;
                     downloadBtn.style.display = 'block';
                     
-                    showStatus('Video generated successfully! Click download to save.', 'success');
+                    showStatus('✅ Video generated successfully via API! Click download to save.', 'success');
                     generateBtn.disabled = false;
                 };
 
@@ -468,7 +500,7 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                showStatus('Failed to generate video. Please try again.', 'error');
+                showStatus(`Failed: ${error.message}`, 'error');
                 generateBtn.disabled = false;
             }
         });
