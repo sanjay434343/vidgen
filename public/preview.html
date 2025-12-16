@@ -8,7 +8,7 @@
 <style>
   * {
     box-sizing: border-box;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    font-family: system-ui, -apple-system;
   }
 
   body {
@@ -46,13 +46,10 @@
   }
 
   @media (max-width: 900px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
+    .grid { grid-template-columns: 1fr; }
   }
 
   .panel {
-    background: #020617;
     border: 1px solid #1e293b;
     border-radius: 14px;
     padding: 16px;
@@ -65,8 +62,7 @@
     margin-top: 12px;
   }
 
-  textarea,
-  input {
+  textarea, input {
     width: 100%;
     margin-top: 6px;
     padding: 10px;
@@ -76,32 +72,30 @@
     color: #e5e7eb;
   }
 
-  textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
+  textarea { min-height: 80px; }
 
   button {
-    width: 100%;
-    margin-top: 16px;
-    padding: 12px;
+    margin-top: 14px;
+    padding: 10px;
     background: #38bdf8;
     color: #020617;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 700;
     cursor: pointer;
+  }
+
+  .btn-secondary {
+    background: #1e293b;
+    color: #e5e7eb;
   }
 
   .preview-box {
     aspect-ratio: 16 / 9;
     background: #000;
     border-radius: 14px;
-    border: 1px solid #1e293b;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 1px solid #1e293b;
   }
 
   .preview-box img,
@@ -109,13 +103,15 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #000;
   }
 
-  .preview-title {
-    margin: 10px 0;
-    font-size: 14px;
-    color: #94a3b8;
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .row button {
+    flex: 1;
   }
 </style>
 </head>
@@ -125,39 +121,57 @@
 <div class="app">
   <header>
     <h1>VidGen</h1>
-    <p>Text → Card → Video</p>
+    <p>Card → SVG → Video</p>
   </header>
 
   <div class="grid">
 
     <!-- INPUT PANEL -->
     <div class="panel">
-      <label>Text</label>
+
+      <label>Main Text</label>
       <textarea id="text">HELLO WORLD</textarea>
 
       <label>Text Color</label>
-      <input type="color" id="textColor" value="#ff0000" />
+      <input type="color" id="textColor" value="#ffffff">
 
       <label>Card Background</label>
-      <input type="color" id="cardColor" value="#ffffff" />
+      <input type="color" id="cardColor" value="#000000">
+
+      <label>Song Title</label>
+      <input id="songTitle" placeholder="Song name">
+
+      <label>Artist</label>
+      <input id="artist" placeholder="Artist name">
+
+      <label>Song Image URL</label>
+      <input id="songImage" placeholder="https://example.com/cover.jpg">
 
       <label>Music URL</label>
-      <input id="musicUrl" placeholder="https://example.com/music.mp3" />
+      <input id="musicUrl" placeholder="https://example.com/music.mp3">
 
       <button onclick="generate()">Generate</button>
+
+      <div class="row">
+        <button class="btn-secondary" onclick="copySVG()">Copy SVG</button>
+        <button class="btn-secondary" onclick="copyVideo()">Copy Video URL</button>
+      </div>
+
     </div>
 
     <!-- PREVIEW PANEL -->
     <div class="panel">
-      <div class="preview-title">SVG Preview</div>
+
+      <label>SVG Preview</label>
       <div class="preview-box">
-        <img id="svgPreview" />
+        <img id="svgPreview">
       </div>
 
-      <div class="preview-title">Video Preview</div>
+      <label>Video Preview</label>
       <div class="preview-box">
         <video id="videoPreview" controls></video>
       </div>
+
     </div>
 
   </div>
@@ -166,6 +180,9 @@
 <canvas id="canvas" width="1920" height="1080" style="display:none"></canvas>
 
 <script>
+let LAST_SVG = "";
+let LAST_VIDEO_URL = "";
+
 async function generate() {
   const payload = {
     text: text.value,
@@ -174,7 +191,6 @@ async function generate() {
     musicUrl: musicUrl.value
   };
 
-  // -------- Call API --------
   const res = await fetch("/api/generate-card", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -183,69 +199,89 @@ async function generate() {
 
   const raw = await res.text();
   let data;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    alert("Server did not return JSON:\n" + raw);
-    return;
-  }
+  try { data = JSON.parse(raw); }
+  catch { return alert("Invalid server response"); }
 
-  if (!data.success) {
-    alert("API error");
-    return;
-  }
+  if (!data.success) return alert("API error");
 
-  // -------- SVG Preview --------
-  const svgData =
-    "data:image/svg+xml;base64," +
-    btoa(unescape(encodeURIComponent(data.svg)));
+  // ----- Build SVG with song metadata -----
+  LAST_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
+  <rect width="100%" height="100%" fill="${cardColor.value}" />
+  <text x="960" y="480" fill="${textColor.value}"
+    font-size="90" font-weight="bold"
+    text-anchor="middle" dominant-baseline="middle">
+    ${escapeHtml(text.value)}
+  </text>
 
+  <image href="${songImage.value}" x="80" y="820" width="140" height="140" />
+
+  <text x="250" y="880" fill="#ffffff" font-size="36">${escapeHtml(songTitle.value)}</text>
+  <text x="250" y="930" fill="#94a3b8" font-size="28">${escapeHtml(artist.value)}</text>
+</svg>`;
+
+  const svgData = "data:image/svg+xml;base64," + btoa(LAST_SVG);
   svgPreview.src = svgData;
 
-  // -------- Video Generation --------
+  // ----- Video generation -----
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-
   const img = new Image();
   img.src = svgData;
   await img.decode();
 
   const audio = new Audio(data.audio);
-  await audio.play().catch(() => {});
+  await audio.play().catch(()=>{});
   audio.pause();
 
   const stream = canvas.captureStream(30);
-
-  const audioCtx = new AudioContext();
-  const src = audioCtx.createMediaElementSource(audio);
-  const dest = audioCtx.createMediaStreamDestination();
+  const ac = new AudioContext();
+  const src = ac.createMediaElementSource(audio);
+  const dest = ac.createMediaStreamDestination();
   src.connect(dest);
-  src.connect(audioCtx.destination);
+  src.connect(ac.destination);
   stream.addTrack(dest.stream.getAudioTracks()[0]);
 
-  const recorder = new MediaRecorder(stream, {
-    mimeType: "video/webm;codecs=vp8,opus"
-  });
-
+  const recorder = new MediaRecorder(stream);
   const chunks = [];
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = () => {
-    videoPreview.src = URL.createObjectURL(new Blob(chunks));
+    const blob = new Blob(chunks);
+    LAST_VIDEO_URL = URL.createObjectURL(blob);
+    videoPreview.src = LAST_VIDEO_URL;
   };
 
   recorder.start();
   audio.play();
 
-  const drawLoop = setInterval(() => {
+  const loop = setInterval(() => {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   }, 33);
 
   setTimeout(() => {
-    clearInterval(drawLoop);
+    clearInterval(loop);
     recorder.stop();
     audio.pause();
-    audioCtx.close();
+    ac.close();
   }, audio.duration * 1000);
+}
+
+function copySVG() {
+  if (!LAST_SVG) return alert("Generate first");
+  navigator.clipboard.writeText(LAST_SVG);
+  alert("SVG copied");
+}
+
+function copyVideo() {
+  if (!LAST_VIDEO_URL) return alert("Generate first");
+  navigator.clipboard.writeText(LAST_VIDEO_URL);
+  alert("Video URL copied");
+}
+
+function escapeHtml(s) {
+  return s.replace(/[<>&"]/g, c =>
+    ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", "\"":"&quot;" }[c])
+  );
 }
 </script>
 
