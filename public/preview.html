@@ -6,10 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
-  * {
-    box-sizing: border-box;
-    font-family: system-ui, -apple-system;
-  }
+  * { box-sizing: border-box; font-family: system-ui, -apple-system; }
 
   body {
     margin: 0;
@@ -32,11 +29,6 @@
   header {
     text-align: center;
     margin-bottom: 20px;
-  }
-
-  header h1 {
-    margin: 0;
-    font-size: 26px;
   }
 
   .grid {
@@ -74,20 +66,19 @@
 
   textarea { min-height: 80px; }
 
+  .row { display: flex; gap: 10px; }
+  .row input { flex: 1; }
+
   button {
-    margin-top: 14px;
-    padding: 10px;
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
     background: #38bdf8;
     color: #020617;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
-  }
-
-  .btn-secondary {
-    background: #1e293b;
-    color: #e5e7eb;
   }
 
   .preview-box {
@@ -105,13 +96,10 @@
     object-fit: contain;
   }
 
-  .row {
-    display: flex;
-    gap: 10px;
-  }
-
-  .row button {
-    flex: 1;
+  .hint {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 4px;
   }
 </style>
 </head>
@@ -121,7 +109,7 @@
 <div class="app">
   <header>
     <h1>VidGen</h1>
-    <p>Card → SVG → Video</p>
+    <p>SVG Card + Audio Clip → Video</p>
   </header>
 
   <div class="grid">
@@ -148,20 +136,20 @@
       <input id="songImage" placeholder="https://example.com/cover.jpg">
 
       <label>Music URL</label>
-      <input id="musicUrl" placeholder="https://example.com/music.mp3">
+      <input id="musicUrl" placeholder="https://example.com/song.mp3">
+
+      <label>Audio Clip (seconds)</label>
+      <div class="row">
+        <input id="clipStart" type="number" min="0" step="0.1" placeholder="Start (sec)">
+        <input id="clipEnd" type="number" min="0" step="0.1" placeholder="End (sec)">
+      </div>
+      <div class="hint">Example: start 30, end 45 → 15s clip</div>
 
       <button onclick="generate()">Generate</button>
-
-      <div class="row">
-        <button class="btn-secondary" onclick="copySVG()">Copy SVG</button>
-        <button class="btn-secondary" onclick="copyVideo()">Copy Video URL</button>
-      </div>
-
     </div>
 
     <!-- PREVIEW PANEL -->
     <div class="panel">
-
       <label>SVG Preview</label>
       <div class="preview-box">
         <img id="svgPreview">
@@ -171,7 +159,6 @@
       <div class="preview-box">
         <video id="videoPreview" controls></video>
       </div>
-
     </div>
 
   </div>
@@ -180,15 +167,26 @@
 <canvas id="canvas" width="1920" height="1080" style="display:none"></canvas>
 
 <script>
-let LAST_SVG = "";
-let LAST_VIDEO_URL = "";
-
 async function generate() {
+  const start = parseFloat(clipStart.value || 0);
+  const end = parseFloat(clipEnd.value || 0);
+  const duration = Math.max(0, end - start);
+
+  if (!musicUrl.value || duration <= 0) {
+    alert("Please provide music URL and valid clip times");
+    return;
+  }
+
   const payload = {
     text: text.value,
     textColor: textColor.value,
     cardColor: cardColor.value,
-    musicUrl: musicUrl.value
+    songTitle: songTitle.value,
+    artist: artist.value,
+    songImage: songImage.value,
+    musicUrl: musicUrl.value,
+    clipStart: start,
+    clipDuration: duration
   };
 
   const res = await fetch("/api/generate-card", {
@@ -200,30 +198,18 @@ async function generate() {
   const raw = await res.text();
   let data;
   try { data = JSON.parse(raw); }
-  catch { return alert("Invalid server response"); }
+  catch { return alert("Server error"); }
 
-  if (!data.success) return alert("API error");
+  if (!data.success) return alert("API failed");
 
-  // ----- Build SVG with song metadata -----
-  LAST_SVG = `
-<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
-  <rect width="100%" height="100%" fill="${cardColor.value}" />
-  <text x="960" y="480" fill="${textColor.value}"
-    font-size="90" font-weight="bold"
-    text-anchor="middle" dominant-baseline="middle">
-    ${escapeHtml(text.value)}
-  </text>
+  // SVG preview
+  const svgData =
+    "data:image/svg+xml;base64," +
+    btoa(unescape(encodeURIComponent(data.svg)));
 
-  <image href="${songImage.value}" x="80" y="820" width="140" height="140" />
-
-  <text x="250" y="880" fill="#ffffff" font-size="36">${escapeHtml(songTitle.value)}</text>
-  <text x="250" y="930" fill="#94a3b8" font-size="28">${escapeHtml(artist.value)}</text>
-</svg>`;
-
-  const svgData = "data:image/svg+xml;base64," + btoa(LAST_SVG);
   svgPreview.src = svgData;
 
-  // ----- Video generation -----
+  // Video generation
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
   const img = new Image();
@@ -231,8 +217,7 @@ async function generate() {
   await img.decode();
 
   const audio = new Audio(data.audio);
-  await audio.play().catch(()=>{});
-  audio.pause();
+  audio.currentTime = data.clipStart;
 
   const stream = canvas.captureStream(30);
   const ac = new AudioContext();
@@ -246,42 +231,22 @@ async function generate() {
   const chunks = [];
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = () => {
-    const blob = new Blob(chunks);
-    LAST_VIDEO_URL = URL.createObjectURL(blob);
-    videoPreview.src = LAST_VIDEO_URL;
+    videoPreview.src = URL.createObjectURL(new Blob(chunks));
   };
 
   recorder.start();
   audio.play();
 
-  const loop = setInterval(() => {
+  const drawLoop = setInterval(() => {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   }, 33);
 
   setTimeout(() => {
-    clearInterval(loop);
+    clearInterval(drawLoop);
     recorder.stop();
     audio.pause();
     ac.close();
-  }, audio.duration * 1000);
-}
-
-function copySVG() {
-  if (!LAST_SVG) return alert("Generate first");
-  navigator.clipboard.writeText(LAST_SVG);
-  alert("SVG copied");
-}
-
-function copyVideo() {
-  if (!LAST_VIDEO_URL) return alert("Generate first");
-  navigator.clipboard.writeText(LAST_VIDEO_URL);
-  alert("Video URL copied");
-}
-
-function escapeHtml(s) {
-  return s.replace(/[<>&"]/g, c =>
-    ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", "\"":"&quot;" }[c])
-  );
+  }, duration * 1000);
 }
 </script>
 
