@@ -1,10 +1,4 @@
 import fetch from "node-fetch";
-import fs from "fs";
-import path from "path";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegPath from "ffmpeg-static";
-
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 export const config = {
   runtime: "nodejs",
@@ -12,6 +6,7 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  // ---------- CORS ----------
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -22,97 +17,90 @@ export default async function handler(req, res) {
   }
 
   try {
+    const body = req.body || {};
+
     const {
       ratio = "16:9",
       text,
       textColor = "#ffffff",
       cardColor = "#000000",
+
+      username = "",
+      userProfileImageBase64 = "",
+
+      songTitle = "",
+      artist = "",
+      songImageBase64 = "",
+
       musicUrl,
       clipStart,
       clipEnd
-    } = req.body || {};
+    } = body;
 
     if (!text || !musicUrl) {
-      return res.status(400).json({ success: false, error: "Missing fields" });
+      return res.status(400).json({
+        success: false,
+        error: "text and musicUrl are required"
+      });
     }
 
     const start = Number(clipStart);
     const end = Number(clipEnd);
+
     if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
-      return res.status(400).json({ success: false, error: "Invalid clip range" });
+      return res.status(400).json({
+        success: false,
+        error: "Invalid clip range"
+      });
     }
 
-    const duration = Math.min(end - start, 10);
+    const clipDuration = end - start;
 
     const RATIOS = {
-      "1:1": { w: 1080, h: 1080 },
+      "1:1":  { w: 1080, h: 1080 },
       "9:16": { w: 1080, h: 1920 },
       "16:9": { w: 1920, h: 1080 }
     };
+
     const { w, h } = RATIOS[ratio] || RATIOS["16:9"];
 
-    const TMP = "/tmp";
-    const svgPath = path.join(TMP, "card.svg");
-    const audioPath = path.join(TMP, "audio.mp3");
-    const videoPath = path.join(TMP, "output.mp4");
-
-    // ---------- SVG ----------
-    const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-  <rect width="100%" height="100%" fill="${cardColor}"/>
-  <text x="50%" y="50%"
-    fill="${textColor}"
-    font-size="${Math.round(w * 0.06)}"
-    text-anchor="middle"
-    dominant-baseline="middle"
-    font-family="Arial"
-    font-weight="800">
-    ${escapeXml(text)}
-  </text>
-</svg>`;
-    fs.writeFileSync(svgPath, svg);
-
-    // ---------- AUDIO ----------
-    const audioRes = await fetch(musicUrl);
-    if (!audioRes.ok) throw new Error("Audio fetch failed");
-    fs.writeFileSync(audioPath, Buffer.from(await audioRes.arrayBuffer()));
-
-    // ---------- FFMPEG (SVG → MP4) ----------
-    await new Promise((resolve, reject) => {
-      ffmpeg()
-        .input(svgPath)
-        .inputOptions([
-          "-loop 1",
-          "-f svg"
-        ])
-        .input(audioPath)
-        .setStartTime(start)
-        .duration(duration)
-        .outputOptions([
-          "-pix_fmt yuv420p",
-          "-preset ultrafast",
-          "-tune stillimage",
-          "-movflags +faststart",
-          "-shortest",
-          `-vf scale=${w}:${h}`
-        ])
-        .save(videoPath)
-        .on("end", resolve)
-        .on("error", reject);
+    const svg = generateSVG({
+      w,
+      h,
+      text,
+      textColor,
+      cardColor,
+      username,
+      userProfileImageBase64,
+      songTitle,
+      artist,
+      songImageBase64
     });
 
-    const videoBase64 = fs.readFileSync(videoPath).toString("base64");
+    // -------- AUDIO FETCH --------
+    const audioRes = await fetch(musicUrl);
+    if (!audioRes.ok) {
+      return res.status(400).json({
+        success: false,
+        error: "Failed to fetch audio"
+      });
+    }
+
+    const audioBuffer = Buffer.from(await audioRes.arrayBuffer());
+    const mime = getMimeType(musicUrl);
 
     return res.status(200).json({
       success: true,
-      video: `data:video/mp4;base64,${videoBase64}`,
+      svg,
+      audio: `data:${mime};base64,${audioBuffer.toString("base64")}`,
+      clipStart: start,
+      clipDuration,
       width: w,
-      height: h,
-      duration
+      height: h
     });
 
   } catch (err) {
-    console.error("API ERROR:", err);
+    console.error(err);
     return res.status(500).json({
       success: false,
       error: err.message
@@ -120,8 +108,133 @@ export default async function handler(req, res) {
   }
 }
 
+/* ================= SVG ================= */
+
+function generateSVG({
+  w,
+  h,
+  text,
+  textColor,
+  cardColor,
+  username,
+  userProfileImageBase64,
+  songTitle,
+  artist,
+  songImageBase64
+}) {
+  const padding = Math.min(w, h) * 0.04;
+  const avatar = Math.min(w, h) * 0.08;
+  const songSize = Math.min(w, h) * 0.11;
+  const gap = Math.min(w, h) * 0.015;
+
+  const userTop = padding;
+  const userLeft = padding;
+  
+  const songBottom = padding;
+  const songLeft = padding;
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+  <defs>
+    <clipPath id="userCircle">
+      <circle cx="${userLeft + avatar / 2}" cy="${userTop + avatar / 2}" r="${avatar / 2}" />
+    </clipPath>
+    <clipPath id="songCircle">
+      <circle cx="${songLeft + songSize / 2}" cy="${h - songBottom - songSize + songSize / 2}" r="${songSize / 2}" />
+    </clipPath>
+  </defs>
+
+  <rect width="100%" height="100%" fill="${cardColor}" />
+
+  ${
+    userProfileImageBase64
+      ? `<image href="${userProfileImageBase64}"
+          x="${userLeft}" y="${userTop}"
+          width="${avatar}" height="${avatar}"
+          clip-path="url(#userCircle)" preserveAspectRatio="xMidYMid slice" />`
+      : ""
+  }
+
+  ${
+    username
+      ? `<text
+          x="${userLeft + avatar + gap}"
+          y="${userTop + avatar / 2}"
+          fill="${textColor}"
+          font-size="${Math.round(w * 0.022)}"
+          dominant-baseline="middle"
+          font-family="Arial, sans-serif"
+          font-weight="700">
+          ${escapeXml(username)}
+        </text>`
+      : ""
+  }
+
+  <text
+    x="${w / 2}"
+    y="${h / 2}"
+    fill="${textColor}"
+    font-size="${Math.round(w * 0.05)}"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="Arial, sans-serif"
+    font-weight="800"
+    letter-spacing="1">
+    ${escapeXml(text)}
+  </text>
+
+  ${
+    songImageBase64
+      ? `<image href="${songImageBase64}"
+          x="${songLeft}" y="${h - songBottom - songSize}"
+          width="${songSize}" height="${songSize}"
+          clip-path="url(#songCircle)" preserveAspectRatio="xMidYMid slice" />`
+      : ""
+  }
+
+  ${
+    songTitle
+      ? `<text
+          x="${songLeft + songSize + gap}"
+          y="${h - songBottom - songSize + songSize * 0.4}"
+          fill="${textColor}"
+          font-size="${Math.round(w * 0.02)}"
+          font-family="Arial, sans-serif"
+          font-weight="700">
+          ${escapeXml(songTitle)}
+        </text>`
+      : ""
+  }
+
+  ${
+    artist
+      ? `<text
+          x="${songLeft + songSize + gap}"
+          y="${h - songBottom - songSize + songSize * 0.7}"
+          fill="${textColor}"
+          opacity="0.85"
+          font-size="${Math.round(w * 0.016)}"
+          font-family="Arial, sans-serif"
+          font-weight="400">
+          ${escapeXml(artist)}
+        </text>`
+      : ""
+  }
+</svg>`;
+}
+
 function escapeXml(str = "") {
   return str.replace(/[<>&"]/g, c =>
     ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", "\"":"&quot;" }[c])
   );
+}
+
+function getMimeType(url) {
+  const ext = url.split(".").pop().toLowerCase();
+  return {
+    mp3: "audio/mpeg",
+    wav: "audio/wav",
+    ogg: "audio/ogg",
+    m4a: "audio/mp4"
+  }[ext] || "audio/mpeg";
 }
