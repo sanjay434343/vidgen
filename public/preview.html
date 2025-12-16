@@ -55,17 +55,39 @@ button {
   border:none;
   border-radius:10px;
   font-weight:700;
+  cursor:pointer;
+}
+button:disabled {
+  opacity:0.6;
+  cursor:not-allowed;
 }
 .preview {
   background:#000;
   border-radius:14px;
   overflow:hidden;
   border:1px solid #1e293b;
+  position:relative;
 }
 .preview img,.preview video {
   width:100%;
   height:100%;
   object-fit:contain;
+}
+
+/* ===== LOADER ===== */
+.loader {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.6);
+  font-weight:600;
+  font-size:14px;
+  display:none;
+}
+.loader.show {
+  display:flex;
 }
 </style>
 </head>
@@ -115,111 +137,98 @@ button {
   <label>Clip End (sec)</label>
   <input id="clipEnd" type="number" step="0.1">
 
-  <button onclick="generate()">Generate & Download</button>
+  <button id="generateBtn" onclick="generate()">Generate Video</button>
 </div>
 
 <div class="panel">
-  <div class="preview"><img id="svgPreview"></div><br>
-  <div class="preview"><video id="videoPreview" controls></video></div>
+  <div class="preview" style="height:220px">
+    <img id="svgPreview">
+  </div>
+
+  <br>
+
+  <div class="preview" style="height:320px">
+    <div class="loader" id="loader">Rendering video…</div>
+    <video id="videoPreview" controls playsinline></video>
+  </div>
 </div>
 
 </div>
 </div>
-
-<canvas id="canvas" style="display:none"></canvas>
 
 <script>
 async function toBase64(url){
   if(!url) return "";
-  const r=await fetch(url);
-  const b=await r.blob();
-  return await new Promise(res=>{
-    const fr=new FileReader();
-    fr.onload=()=>res(fr.result);
+  const r = await fetch(url);
+  const b = await r.blob();
+  return new Promise(res=>{
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result);
     fr.readAsDataURL(b);
   });
 }
 
 async function generate(){
-  const start=Number(clipStart.value);
-  const end=Number(clipEnd.value);
-  if(end<=start){alert("Invalid clip range");return;}
+  const btn = document.getElementById("generateBtn");
+  const loader = document.getElementById("loader");
+  const video = document.getElementById("videoPreview");
 
-  const payload={
-    ratio:ratio.value,
-    text:text.value,
-    textColor:textColor.value,
-    cardColor:cardColor.value,
+  const start = Number(clipStart.value);
+  const end = Number(clipEnd.value);
+  if(end <= start){
+    alert("Invalid clip range");
+    return;
+  }
 
-    username:username.value,
-    userProfileImageBase64:await toBase64(userProfileImage.value),
+  btn.disabled = true;
+  loader.classList.add("show");
+  video.removeAttribute("src");
 
-    songTitle:songTitle.value,
-    artist:artist.value,
-    songImageBase64:await toBase64(songImage.value),
+  const payload = {
+    ratio: ratio.value,
+    text: text.value,
+    textColor: textColor.value,
+    cardColor: cardColor.value,
 
-    musicUrl:musicUrl.value,
-    clipStart:start,
-    clipEnd:end
+    username: username.value,
+    userProfileImageBase64: await toBase64(userProfileImage.value),
+
+    songTitle: songTitle.value,
+    artist: artist.value,
+    songImageBase64: await toBase64(songImage.value),
+
+    musicUrl: musicUrl.value,
+    clipStart: start,
+    clipEnd: end
   };
 
-  const r=await fetch("/api/generate-card",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(payload)
-  });
+  try {
+    const r = await fetch("/api/generate-card", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
 
-  const data=JSON.parse(await r.text());
-  if(!data.success){alert("API failed");return;}
+    const data = await r.json();
+    if(!data.success) throw new Error("API failed");
 
-  const svgData="data:image/svg+xml;base64,"+
-    btoa(unescape(encodeURIComponent(data.svg)));
-  svgPreview.src=svgData;
+    // SVG preview (optional)
+    if(data.svg){
+      const svgData = "data:image/svg+xml;base64," +
+        btoa(unescape(encodeURIComponent(data.svg)));
+      svgPreview.src = svgData;
+    }
 
-  canvas.width=data.width;
-  canvas.height=data.height;
+    // Video preview (MP4)
+    video.src = data.video;
+    await video.play();
 
-  const ctx=canvas.getContext("2d");
-  const img=new Image();
-  img.src=svgData;
-  await img.decode();
-
-  const audio=new Audio(data.audio);
-  audio.currentTime=data.clipStart;
-
-  const stream=canvas.captureStream(30);
-  const ac=new AudioContext();
-  const src=ac.createMediaElementSource(audio);
-  const dest=ac.createMediaStreamDestination();
-  src.connect(dest); src.connect(ac.destination);
-  stream.addTrack(dest.stream.getAudioTracks()[0]);
-
-  const rec=new MediaRecorder(stream,{mimeType:"video/webm"});
-  const chunks=[];
-  rec.ondataavailable=e=>chunks.push(e.data);
-  rec.onstop=()=>{
-    const blob=new Blob(chunks,{type:"video/webm"});
-    const url=URL.createObjectURL(blob);
-    videoPreview.src=url;
-    const a=document.createElement("a");
-    a.href=url;
-    a.download="video.webm";
-    a.click();
-  };
-
-  rec.start();
-  audio.play();
-
-  const loop=setInterval(()=>{
-    ctx.drawImage(img,0,0,canvas.width,canvas.height);
-  },33);
-
-  setTimeout(()=>{
-    clearInterval(loop);
-    rec.stop();
-    audio.pause();
-    ac.close();
-  },data.clipDuration*1000);
+  } catch(err){
+    alert(err.message);
+  } finally {
+    loader.classList.remove("show");
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
