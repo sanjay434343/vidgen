@@ -6,42 +6,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body {
+body{
   background:#0f172a;
   color:#e5e7eb;
   font-family:system-ui;
+  margin:0;
+  padding:20px;
   display:flex;
   justify-content:center;
-  padding:20px;
 }
-.app {
+.app{
   max-width:1200px;
   width:100%;
   background:#020617;
   padding:20px;
   border-radius:16px;
 }
-.grid {
+.grid{
   display:grid;
   grid-template-columns:1.1fr 0.9fr;
   gap:20px;
 }
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 
-.panel {
+.panel{
   border:1px solid #1e293b;
   border-radius:14px;
   padding:16px;
 }
 
-label {
+label{
   font-size:13px;
   color:#94a3b8;
   margin-top:12px;
   display:block;
 }
 
-input, textarea, select {
+input,textarea,select{
   width:100%;
   margin-top:6px;
   padding:10px;
@@ -51,7 +52,7 @@ input, textarea, select {
   color:#e5e7eb;
 }
 
-button {
+button{
   margin-top:16px;
   padding:12px;
   background:#38bdf8;
@@ -61,59 +62,65 @@ button {
   font-weight:700;
   cursor:pointer;
 }
-
-button.secondary {
+button.secondary{
   background:#1e293b;
   color:#e5e7eb;
 }
 
-.preview {
+.preview{
   background:#000;
   border-radius:14px;
   overflow:hidden;
   border:1px solid #1e293b;
   margin-bottom:12px;
 }
-.preview img,.preview video {
+.preview img,.preview video{
   width:100%;
   height:100%;
   object-fit:contain;
 }
 
-/* SONG SEARCH */
-.song-results {
-  margin-top:10px;
-  max-height:220px;
-  overflow:auto;
-  border:1px solid #1e293b;
-  border-radius:10px;
+/* ================= MODAL ================= */
+#songModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
 }
-.song-item {
+#songModal .box{
+  width:95%;
+  max-width:900px;
+  background:#020617;
+  border-radius:16px;
+  padding:20px;
+  border:1px solid #1e293b;
+}
+
+.song-list{
+  max-height:260px;
+  overflow:auto;
+  margin-top:10px;
+  border:1px solid #1e293b;
+  border-radius:12px;
+}
+.song-item{
   display:flex;
   gap:10px;
   padding:8px;
   cursor:pointer;
   border-bottom:1px solid #1e293b;
 }
-.song-item:hover {background:#020617}
-.song-item img {
+.song-item:hover{background:#020617}
+.song-item img{
   width:48px;
   height:48px;
   border-radius:8px;
 }
-.song-meta {
-  font-size:13px;
-}
-.song-meta b {display:block}
 
-/* CLIP CUTTER */
-.range-wrap {
-  margin-top:14px;
-}
-.range-wrap input {
-  padding:0;
-}
-.clip-info {
+.clip-info{
   font-size:12px;
   color:#94a3b8;
   margin-top:6px;
@@ -150,40 +157,25 @@ button.secondary {
 <label>Background Color</label>
 <input type="color" id="cardColor" value="#000000">
 
-<hr style="margin:20px 0;border-color:#1e293b">
+<hr style="margin:18px 0;border-color:#1e293b">
 
-<label>Search Song (JioSaavn)</label>
-<input id="songSearch" placeholder="Search song or artist">
-<button class="secondary" onclick="searchSong()">Search</button>
-
-<div class="song-results" id="songResults"></div>
+<label>Song</label>
+<button class="secondary" onclick="openModal()">Search & Select Song</button>
 
 <label>Song Title</label>
-<input id="songTitle">
+<input id="songTitle" readonly>
 
 <label>Artist</label>
-<input id="artist">
+<input id="artist" readonly>
 
 <label>Song Image URL</label>
-<input id="songImage">
+<input id="songImage" readonly>
 
 <label>Music URL (160kbps)</label>
-<input id="musicUrl">
+<input id="musicUrl" readonly>
 
-<!-- CLIP CUTTER -->
-<div class="range-wrap">
-  <label>Clip Start (sec)</label>
-  <input type="range" id="clipStart" min="0" step="0.1" value="0">
-</div>
-
-<div class="range-wrap">
-  <label>Clip End (sec)</label>
-  <input type="range" id="clipEnd" min="10" step="0.1" value="10">
-</div>
-
-<div class="clip-info" id="clipInfo">
-  Duration: 10s (Min 10s / Max 30s)
-</div>
+<input type="hidden" id="clipStart">
+<input type="hidden" id="clipEnd">
 
 <button onclick="generate()">Generate & Download</button>
 </div>
@@ -199,83 +191,133 @@ button.secondary {
 
 <canvas id="canvas" style="display:none"></canvas>
 
+<!-- ================= SONG MODAL ================= -->
+<div id="songModal">
+  <div class="box">
+
+    <h3>Select Song & Clip</h3>
+
+    <div style="display:flex;gap:10px">
+      <input id="modalSearch" placeholder="Search song or artist">
+      <button onclick="searchSongs()">Search</button>
+    </div>
+
+    <div class="song-list" id="songResults"></div>
+
+    <div id="clipBox" style="display:none;margin-top:14px">
+      <audio id="previewAudio" controls style="width:100%"></audio>
+
+      <label>Clip Start</label>
+      <input type="range" id="mStart" min="0" step="0.1">
+
+      <label>Clip End</label>
+      <input type="range" id="mEnd" min="10" step="0.1">
+
+      <div class="clip-info" id="clipInfo"></div>
+
+      <button onclick="confirmSong()">Confirm Song</button>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:10px">
+      <button onclick="prevPage()">◀ Prev</button>
+      <button onclick="nextPage()">Next ▶</button>
+    </div>
+
+    <button class="secondary" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
 <script>
-/* ======================
-   JIOSAAVN SEARCH
-====================== */
-async function searchSong(){
-  const q = songSearch.value.trim();
-  if(!q) return;
-
-  songResults.innerHTML="Searching...";
-
-  const api = `https://saavn.dev/api/search/songs?query=${encodeURIComponent(q)}&limit=10`;
-
-  const res = await fetch(api);
-  const json = await res.json();
-  const songs = json.data.results;
-
-  songResults.innerHTML="";
-  songs.forEach(s=>{
-    const item=document.createElement("div");
-    item.className="song-item";
-    item.innerHTML=`
-      <img src="${s.image[1].url}">
-      <div class="song-meta">
-        <b>${s.name}</b>
-        ${s.primaryArtists}
-      </div>
-    `;
-    item.onclick=()=>selectSong(s);
-    songResults.appendChild(item);
-  });
-}
-
-function selectSong(s){
-  songTitle.value = s.name;
-  artist.value = s.primaryArtists;
-  songImage.value = s.image[s.image.length-1].url;
-
-  // pick 160kbps
-  const audio160 = s.downloadUrl.find(a=>a.quality==="160kbps");
-  musicUrl.value = audio160.url;
-
-  setupClipper(audio160.url);
-}
-
-/* ======================
-   CLIP CUTTER
-====================== */
+/* ================= MODAL STATE ================= */
+let page=0;
+let selectedSong=null;
 let audioDuration=0;
 
-function setupClipper(url){
-  const audio=new Audio(url);
-  audio.addEventListener("loadedmetadata",()=>{
-    audioDuration = audio.duration;
-    clipStart.max = audioDuration-10;
-    clipEnd.max = audioDuration;
-    clipEnd.value = Math.min(clipStart.value*1+10,audioDuration);
-    updateClipInfo();
+/* ================= MODAL CONTROL ================= */
+function openModal(){
+  songModal.style.display="flex";
+  songResults.innerHTML="";
+  clipBox.style.display="none";
+}
+function closeModal(){
+  songModal.style.display="none";
+}
+
+/* ================= SEARCH ================= */
+async function searchSongs(){
+  page=0;
+  loadSongs();
+}
+async function loadSongs(){
+  const q = modalSearch.value || "tamil";
+  songResults.innerHTML="Loading...";
+  const api =
+`https://saavn.sumit.co/api/search/songs?query=${encodeURIComponent(q)}&page=${page}&limit=50`;
+  const res = await fetch(api);
+  const json = await res.json();
+  const list = json.data.results;
+
+  songResults.innerHTML="";
+  list.forEach(s=>{
+    const d=document.createElement("div");
+    d.className="song-item";
+    d.innerHTML=`
+      <img src="${s.image[1].url}">
+      <div>
+        <b>${s.name}</b><br>
+        <small>${s.primaryArtists}</small>
+      </div>`;
+    d.onclick=()=>selectSong(s);
+    songResults.appendChild(d);
   });
 }
+function nextPage(){page++;loadSongs();}
+function prevPage(){if(page>0){page--;loadSongs();}}
 
-clipStart.oninput = clipEnd.oninput = ()=>{
-  let start = Number(clipStart.value);
-  let end = Number(clipEnd.value);
-  if(end-start < 10) end = start+10;
-  if(end-start > 30) end = start+30;
-  clipEnd.value = Math.min(end,audioDuration);
-  updateClipInfo();
-};
+/* ================= SONG SELECT ================= */
+function selectSong(song){
+  selectedSong=song;
+  const audio160=song.downloadUrl.find(a=>a.quality==="160kbps");
+  previewAudio.src=audio160.url;
 
-function updateClipInfo(){
-  clipInfo.textContent =
-    `Duration: ${(clipEnd.value-clipStart.value).toFixed(1)}s (Min 10s / Max 30s)`;
+  previewAudio.onloadedmetadata=()=>{
+    audioDuration=previewAudio.duration;
+    mStart.max=audioDuration-10;
+    mEnd.max=audioDuration;
+    mStart.value=0;
+    mEnd.value=10;
+    updateClip();
+    clipBox.style.display="block";
+  };
 }
 
-/* ======================
-   BASE64 HELPER
-====================== */
+/* ================= CLIP CUT ================= */
+mStart.oninput=mEnd.oninput=()=>{
+  let s=+mStart.value;
+  let e=+mEnd.value;
+  if(e-s<10) e=s+10;
+  if(e-s>30) e=s+30;
+  mEnd.value=Math.min(e,audioDuration);
+  updateClip();
+};
+function updateClip(){
+  clipInfo.textContent=
+    `Duration: ${(mEnd.value-mStart.value).toFixed(1)}s (10–30s)`;
+}
+
+/* ================= CONFIRM ================= */
+function confirmSong(){
+  const audio160=selectedSong.downloadUrl.find(a=>a.quality==="160kbps");
+  songTitle.value=selectedSong.name;
+  artist.value=selectedSong.primaryArtists;
+  songImage.value=selectedSong.image.at(-1).url;
+  musicUrl.value=audio160.url;
+  clipStart.value=mStart.value;
+  clipEnd.value=mEnd.value;
+  closeModal();
+}
+
+/* ================= BASE64 ================= */
 async function toBase64(url){
   if(!url) return "";
   const r=await fetch(url);
@@ -287,14 +329,12 @@ async function toBase64(url){
   });
 }
 
-/* ======================
-   GENERATE
-====================== */
+/* ================= GENERATE ================= */
 async function generate(){
-  const start=Number(clipStart.value);
-  const end=Number(clipEnd.value);
-  if(end-start<10 || end-start>30){
-    alert("Clip must be between 10s and 30s");
+  const start=+clipStart.value;
+  const end=+clipEnd.value;
+  if(end-start<10||end-start>30){
+    alert("Clip must be 10–30 seconds");
     return;
   }
 
@@ -318,7 +358,6 @@ async function generate(){
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
   });
-
   const data=await r.json();
   if(!data.success){alert("API failed");return;}
 
@@ -340,7 +379,7 @@ async function generate(){
   const ac=new AudioContext();
   const src=ac.createMediaElementSource(audio);
   const dest=ac.createMediaStreamDestination();
-  src.connect(dest); src.connect(ac.destination);
+  src.connect(dest);src.connect(ac.destination);
   stream.addTrack(dest.stream.getAudioTracks()[0]);
 
   const rec=new MediaRecorder(stream,{mimeType:"video/webm"});
