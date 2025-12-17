@@ -89,37 +89,64 @@ body {
 
 /* LEFT PANEL */
 .left-panel {
-  width: 80px;
+  width: 280px;
   background: #0f0f0f;
   border-right: 1px solid #333;
   display: flex;
   flex-direction: column;
-  padding: 12px 0;
+  overflow-y: auto;
+}
+
+.left-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-panel::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.left-panel::-webkit-scrollbar-thumb {
+  background: #00d4ff;
+  border-radius: 3px;
+}
+
+.tool-section {
+  padding: 16px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .tool-btn {
   width: 100%;
-  padding: 16px 8px;
-  background: transparent;
-  border: none;
-  color: #999;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #e5e7eb;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: 10px;
+  font-size: 13px;
   transition: all 0.2s;
+  margin-bottom: 8px;
 }
 
-.tool-btn:hover,
-.tool-btn.active {
-  background: #1a1a1a;
-  color: #00d4ff;
+.tool-btn:hover {
+  background: #2a2a2a;
+  border-color: #00d4ff;
 }
 
 .tool-icon {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 /* CENTER CANVAS AREA */
@@ -129,10 +156,76 @@ body {
   flex-direction: column;
   background: #161616;
   position: relative;
+  min-width: 0;
+}
+
+.pages-container {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #333;
+  overflow-x: auto;
+}
+
+.page-thumb {
+  min-width: 70px;
+  height: 50px;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #666;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.page-thumb:hover {
+  border-color: #00d4ff;
+}
+
+.page-thumb.active {
+  border-color: #00d4ff;
+  background: #1a2a3a;
+  color: #00d4ff;
+}
+
+.page-duration {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  font-size: 9px;
+  background: #000;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.add-page-btn {
+  min-width: 70px;
+  height: 50px;
+  background: #1a1a1a;
+  border: 2px dashed #444;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.add-page-btn:hover {
+  border-color: #00d4ff;
+  color: #00d4ff;
 }
 
 .canvas-controls {
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: #0f0f0f;
   border-bottom: 1px solid #333;
   display: flex;
@@ -143,19 +236,19 @@ body {
 .zoom-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-left: auto;
 }
 
 .zoom-btn {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   background: #2a2a2a;
   border: 1px solid #444;
   border-radius: 6px;
   color: #fff;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .zoom-btn:hover {
@@ -163,9 +256,9 @@ body {
 }
 
 .zoom-level {
-  min-width: 60px;
+  min-width: 50px;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
 }
 
@@ -192,45 +285,27 @@ canvas {
   display: block;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
   cursor: move;
+  max-width: 400px;
+  max-height: 500px;
 }
 
-/* ELEMENT HANDLES */
-.element-handle {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #00d4ff;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-}
-
-.handle-tl { cursor: nw-resize; }
-.handle-tr { cursor: ne-resize; }
-.handle-bl { cursor: sw-resize; }
-.handle-br { cursor: se-resize; }
-.handle-rotate {
-  width: 16px;
-  height: 16px;
-  background: #ff00d4;
-  cursor: grab;
+canvas:active {
+  cursor: grabbing;
 }
 
 /* RIGHT PANEL */
 .right-panel {
-  width: 340px;
+  width: 320px;
   background: #0f0f0f;
   border-left: 1px solid #333;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 56px - 200px);
+  max-height: calc(100vh - 56px - 220px);
   overflow-y: auto;
 }
 
 .right-panel::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .right-panel::-webkit-scrollbar-track {
@@ -239,33 +314,24 @@ canvas {
 
 .right-panel::-webkit-scrollbar-thumb {
   background: #00d4ff;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .panel-section {
-  padding: 16px;
+  padding: 14px;
   border-bottom: 1px solid #2a2a2a;
 }
 
-.section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .property-row {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .property-label {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 11px;
   color: #999;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .property-value {
@@ -275,7 +341,7 @@ canvas {
 
 input[type="range"] {
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: #2a2a2a;
   border-radius: 2px;
   outline: none;
@@ -284,16 +350,16 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   background: #00d4ff;
   border-radius: 50%;
   cursor: pointer;
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   background: #00d4ff;
   border-radius: 50%;
   cursor: pointer;
@@ -302,15 +368,16 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="text"],
 input[type="number"],
+input[type="url"],
 textarea,
 select {
   width: 100%;
-  padding: 8px 10px;
+  padding: 7px 9px;
   background: #1a1a1a;
   color: #e5e7eb;
   border: 1px solid #333;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-family: inherit;
 }
 
@@ -323,12 +390,12 @@ select:focus {
 
 textarea {
   resize: vertical;
-  min-height: 60px;
+  min-height: 50px;
 }
 
 input[type="color"] {
   width: 100%;
-  height: 36px;
+  height: 32px;
   padding: 2px;
   border: 1px solid #333;
   border-radius: 6px;
@@ -337,20 +404,20 @@ input[type="color"] {
 }
 
 input[type="file"] {
-  font-size: 12px;
-  padding: 6px;
+  font-size: 11px;
+  padding: 5px;
   cursor: pointer;
 }
 
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 6px;
   margin-top: 8px;
 }
 
 .preset-btn {
-  padding: 12px 8px;
+  padding: 10px 6px;
   background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 6px;
@@ -369,12 +436,13 @@ input[type="file"] {
 .preset-btn small {
   display: block;
   color: #666;
-  margin-top: 4px;
+  margin-top: 3px;
+  font-size: 9px;
 }
 
 /* TIMELINE */
 .timeline {
-  height: 200px;
+  height: 220px;
   background: #0a0a0a;
   border-top: 1px solid #333;
   display: flex;
@@ -382,28 +450,28 @@ input[type="file"] {
 }
 
 .timeline-header {
-  padding: 8px 16px;
+  padding: 8px 12px;
   background: #0f0f0f;
   border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .playback-controls {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .play-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   background: #00d4ff;
   border: none;
   border-radius: 50%;
   color: #000;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -414,15 +482,15 @@ input[type="file"] {
 }
 
 .time-display {
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
   font-variant-numeric: tabular-nums;
-  min-width: 100px;
+  min-width: 90px;
 }
 
 .timeline-content {
   flex: 1;
-  padding: 12px;
+  padding: 10px;
   overflow-x: auto;
   overflow-y: auto;
 }
@@ -430,44 +498,44 @@ input[type="file"] {
 .timeline-tracks {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: max-content;
 }
 
 .track {
   background: #1a1a1a;
   border-radius: 6px;
-  padding: 8px;
-  min-height: 48px;
+  padding: 6px;
+  min-height: 40px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   position: relative;
 }
 
 .track-label {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
-  width: 80px;
+  width: 70px;
   flex-shrink: 0;
 }
 
 .track-items {
   flex: 1;
   display: flex;
-  gap: 4px;
+  gap: 3px;
   position: relative;
 }
 
 .track-item {
   background: linear-gradient(135deg, #00d4ff, #0099ff);
   border-radius: 4px;
-  padding: 8px 12px;
-  font-size: 11px;
+  padding: 6px 10px;
+  font-size: 10px;
   color: #fff;
   cursor: move;
   position: relative;
-  min-width: 100px;
+  min-width: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -482,20 +550,21 @@ input[type="file"] {
 }
 
 .layer-list {
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .layer-item {
   background: #1a1a1a;
   border: 2px solid transparent;
   border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 6px;
+  padding: 8px;
+  margin-bottom: 5px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s;
+  font-size: 12px;
 }
 
 .layer-item:hover {
@@ -508,42 +577,43 @@ input[type="file"] {
 }
 
 .layer-badge {
-  font-size: 10px;
-  padding: 2px 8px;
+  font-size: 9px;
+  padding: 2px 6px;
   background: #2a2a2a;
-  border-radius: 4px;
+  border-radius: 3px;
   text-transform: uppercase;
 }
 
 .help-text {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
-  margin-top: 4px;
+  margin-top: 3px;
   font-style: italic;
 }
 
 .status-toast {
   position: fixed;
-  bottom: 220px;
-  right: 360px;
+  bottom: 240px;
+  right: 340px;
   background: #1a1a1a;
-  padding: 12px 20px;
+  padding: 10px 16px;
   border-radius: 8px;
   border: 1px solid #333;
   display: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  font-size: 12px;
 }
 
 .status-toast.show {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .loader {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border: 2px solid #00d4ff;
   border-top-color: transparent;
   border-radius: 50%;
@@ -554,82 +624,33 @@ input[type="file"] {
   to { transform: rotate(360deg); }
 }
 
-.pages-container {
+.effects-list {
   display: flex;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #0f0f0f;
-  border-bottom: 1px solid #333;
-  overflow-x: auto;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.page-thumb {
-  min-width: 80px;
-  height: 60px;
+.effect-item {
   background: #1a1a1a;
-  border: 2px solid #333;
+  border: 1px solid #333;
   border-radius: 6px;
+  padding: 8px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.2s;
   font-size: 11px;
-  color: #666;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.page-thumb:hover {
-  border-color: #00d4ff;
-}
-
-.page-thumb.active {
-  border-color: #00d4ff;
-  background: #1a2a3a;
-  color: #00d4ff;
-}
-
-.page-duration {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  font-size: 9px;
-  background: #000;
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.add-page-btn {
-  min-width: 80px;
-  height: 60px;
-  background: #1a1a1a;
-  border: 2px dashed #444;
-  border-radius: 6px;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #666;
-  transition: all 0.2s;
+  gap: 8px;
 }
 
-.add-page-btn:hover {
+.effect-item:hover {
+  background: #2a2a2a;
   border-color: #00d4ff;
-  color: #00d4ff;
 }
 
-.audio-waveform {
-  width: 100%;
-  height: 32px;
-  background: #1a1a1a;
-  border-radius: 4px;
-  margin-top: 8px;
-  display: none;
-}
-
-.audio-waveform.show {
-  display: block;
+.effect-item.active {
+  background: #1a2a3a;
+  border-color: #00d4ff;
 }
 </style>
 </head>
@@ -640,35 +661,81 @@ input[type="file"] {
   <div class="top-bar">
     <div class="logo">✂️ CapCut Editor</div>
     <div class="top-actions">
-      <select id="canvasSizeSelect" style="padding: 8px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; cursor: pointer;">
+      <select id="canvasSizeSelect" style="padding: 6px 10px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; cursor: pointer; font-size: 12px;">
         <option value="1080,1920">9:16 Portrait</option>
         <option value="1920,1080">16:9 Landscape</option>
         <option value="1080,1080">1:1 Square</option>
         <option value="720,1280">9:16 HD</option>
       </select>
-      <button class="btn btn-primary" onclick="exportVideo()">📤 Export Video</button>
+      <button class="btn btn-primary" onclick="exportAllPages()">📤 Export All Pages</button>
     </div>
   </div>
 
   <div class="main-content">
-    <!-- LEFT TOOLS -->
+    <!-- LEFT PANEL -->
     <div class="left-panel">
-      <button class="tool-btn active">
-        <div class="tool-icon">🎬</div>
-        <div>Media</div>
-      </button>
-      <button class="tool-btn">
-        <div class="tool-icon">📝</div>
-        <div>Text</div>
-      </button>
-      <button class="tool-btn">
-        <div class="tool-icon">🎵</div>
-        <div>Audio</div>
-      </button>
-      <button class="tool-btn">
-        <div class="tool-icon">✨</div>
-        <div>Effects</div>
-      </button>
+      <div class="tool-section">
+        <div class="section-title">📐 Canvas</div>
+        <div class="preset-grid">
+          <div class="preset-btn" onclick="setCanvasSize(1080,1920)">9:16<br><small>1080×1920</small></div>
+          <div class="preset-btn" onclick="setCanvasSize(1920,1080)">16:9<br><small>1920×1080</small></div>
+          <div class="preset-btn" onclick="setCanvasSize(1080,1080)">1:1<br><small>1080×1080</small></div>
+          <div class="preset-btn" onclick="setCanvasSize(720,1280)">HD<br><small>720×1280</small></div>
+        </div>
+        <div class="property-row" style="margin-top: 10px;">
+          <div class="property-label">Background Color</div>
+          <input type="color" id="bgColor" value="#000000">
+        </div>
+      </div>
+
+      <div class="tool-section">
+        <div class="section-title">🎵 Music</div>
+        <input type="url" id="musicUrl" placeholder="Paste audio URL..." style="margin-bottom: 6px;">
+        <button class="tool-btn" onclick="loadMusic()">
+          <span class="tool-icon">🎵</span>
+          <span>Load Music</span>
+        </button>
+        <audio id="audioPlayer" controls style="width: 100%; margin-top: 6px; display: none;"></audio>
+      </div>
+
+      <div class="tool-section">
+        <div class="section-title">🎬 Layers</div>
+        <button class="tool-btn" onclick="addLayer()">
+          <span class="tool-icon">➕</span>
+          <span>Add Layer</span>
+        </button>
+        <div class="layer-list" id="layersList"></div>
+      </div>
+
+      <div class="tool-section">
+        <div class="section-title">✨ Effects</div>
+        <div class="effects-list">
+          <div class="effect-item" onclick="applyEffect('blur')">
+            <span>🌫️</span>
+            <span>Blur</span>
+          </div>
+          <div class="effect-item" onclick="applyEffect('grayscale')">
+            <span>⚫</span>
+            <span>Grayscale</span>
+          </div>
+          <div class="effect-item" onclick="applyEffect('sepia')">
+            <span>🟤</span>
+            <span>Sepia</span>
+          </div>
+          <div class="effect-item" onclick="applyEffect('invert')">
+            <span>🔄</span>
+            <span>Invert</span>
+          </div>
+          <div class="effect-item" onclick="applyEffect('brightness')">
+            <span>💡</span>
+            <span>Brightness</span>
+          </div>
+          <div class="effect-item" onclick="applyEffect('contrast')">
+            <span>◐</span>
+            <span>Contrast</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- CENTER CANVAS -->
@@ -682,12 +749,12 @@ input[type="file"] {
       </div>
 
       <div class="canvas-controls">
-        <span style="font-size: 12px; color: #999;">Canvas</span>
+        <span style="font-size: 11px; color: #999;">Canvas</span>
         <div class="zoom-controls">
           <button class="zoom-btn" onclick="zoomOut()">−</button>
           <div class="zoom-level" id="zoomLevel">100%</div>
           <button class="zoom-btn" onclick="zoomIn()">+</button>
-          <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">⊙</button>
+          <button class="zoom-btn" onclick="resetZoom()" title="Reset">⊙</button>
         </div>
       </div>
 
@@ -700,39 +767,9 @@ input[type="file"] {
 
     <!-- RIGHT PROPERTIES -->
     <div class="right-panel" id="rightPanel">
-      <div class="panel-section">
-        <div class="section-title">📐 Canvas Settings</div>
-        <div class="preset-grid">
-          <div class="preset-btn" onclick="setCanvasSize(1080,1920)">9:16<br><small>1080×1920</small></div>
-          <div class="preset-btn" onclick="setCanvasSize(1920,1080)">16:9<br><small>1920×1080</small></div>
-          <div class="preset-btn" onclick="setCanvasSize(1080,1080)">1:1<br><small>1080×1080</small></div>
-          <div class="preset-btn" onclick="setCanvasSize(720,1280)">HD<br><small>720×1280</small></div>
-        </div>
-        <div class="property-row" style="margin-top: 12px;">
-          <div class="property-label">Background Color</div>
-          <input type="color" id="bgColor" value="#000000">
-        </div>
-      </div>
-
-      <div class="panel-section">
-        <div class="section-title">🎵 Background Music</div>
-        <div class="property-row">
-          <input type="url" id="musicUrl" placeholder="Paste audio URL...">
-          <p class="help-text">Direct MP3/audio link</p>
-        </div>
-        <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="loadMusic()">Load Music</button>
-        <audio id="audioPlayer" controls style="width: 100%; margin-top: 8px; display: none;"></audio>
-      </div>
-
-      <div class="panel-section">
-        <div class="section-title">🎬 Layers</div>
-        <button class="btn btn-primary" style="width: 100%;" onclick="addLayer()">+ Add Layer (Text + Image)</button>
-        <div class="layer-list" id="layersList"></div>
-      </div>
-
       <div id="layerProperties" style="display: none;">
         <div class="panel-section">
-          <div class="section-title">📸 Background Image</div>
+          <div class="section-title">📸 Image</div>
           <input type="file" id="imageUpload" accept="image/*">
           <div class="property-row">
             <div class="property-label">
@@ -767,7 +804,7 @@ input[type="file"] {
         <div class="panel-section">
           <div class="section-title">💬 Text</div>
           <textarea id="textContent" placeholder="Enter text...">YOUR TEXT</textarea>
-          <div class="property-row" style="margin-top: 12px;">
+          <div class="property-row" style="margin-top: 10px;">
             <div class="property-label">
               <span>Font Size</span>
               <span class="property-value" id="fontSizeVal">64</span>
@@ -775,7 +812,7 @@ input[type="file"] {
             <input type="range" id="fontSize" min="12" max="200" value="64">
           </div>
           <div class="property-row">
-            <div class="property-label">Font Family</div>
+            <div class="property-label">Font</div>
             <select id="fontFamily">
               <option value="Arial">Arial</option>
               <option value="Helvetica">Helvetica</option>
@@ -785,19 +822,19 @@ input[type="file"] {
             </select>
           </div>
           <div class="property-row">
-            <div class="property-label">Text Color</div>
+            <div class="property-label">Color</div>
             <input type="color" id="textColor" value="#ffffff">
           </div>
           <div class="property-row">
             <div class="property-label">
-              <span>Position X</span>
+              <span>X Position</span>
               <span class="property-value" id="textXVal">0</span>
             </div>
             <input type="range" id="textX" min="-1000" max="1000" value="0">
           </div>
           <div class="property-row">
             <div class="property-label">
-              <span>Position Y</span>
+              <span>Y Position</span>
               <span class="property-value" id="textYVal">0</span>
             </div>
             <input type="range" id="textY" min="-1000" max="1000" value="0">
@@ -830,6 +867,38 @@ input[type="file"] {
         </div>
 
         <div class="panel-section">
+          <div class="section-title">✨ Effects</div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Blur</span>
+              <span class="property-value" id="effectBlurVal">0px</span>
+            </div>
+            <input type="range" id="effectBlur" min="0" max="20" value="0">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Brightness</span>
+              <span class="property-value" id="effectBrightnessVal">100%</span>
+            </div>
+            <input type="range" id="effectBrightness" min="0" max="200" value="100">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Contrast</span>
+              <span class="property-value" id="effectContrastVal">100%</span>
+            </div>
+            <input type="range" id="effectContrast" min="0" max="200" value="100">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Saturation</span>
+              <span class="property-value" id="effectSaturationVal">100%</span>
+            </div>
+            <input type="range" id="effectSaturation" min="0" max="200" value="100">
+          </div>
+        </div>
+
+        <div class="panel-section">
           <button class="btn btn-secondary" style="width: 100%; background: #dc2626;" onclick="deleteLayer()">🗑 Delete Layer</button>
         </div>
       </div>
@@ -841,13 +910,13 @@ input[type="file"] {
     <div class="timeline-header">
       <div class="playback-controls">
         <button class="play-btn" onclick="play()">▶</button>
-        <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="pause()">⏸</button>
-        <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="reset()">⏮</button>
+        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="pause()">⏸</button>
+        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="reset()">⏮</button>
       </div>
       <div class="time-display" id="timeDisplay">00:00 / 05:00</div>
       <div style="flex: 1;"></div>
-      <input type="number" id="pageDuration" value="5" min="1" max="30" style="width: 80px; padding: 6px 8px; text-align: center;" placeholder="Duration">
-      <span style="font-size: 12px; color: #999;">seconds</span>
+      <input type="number" id="pageDuration" value="5" min="1" max="30" style="width: 70px; padding: 5px 6px; text-align: center; font-size: 12px;" placeholder="Sec">
+      <span style="font-size: 11px; color: #999;">sec</span>
     </div>
     <div class="timeline-content">
       <div class="timeline-tracks" id="timelineTracks">
@@ -890,12 +959,10 @@ let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
 let musicLoaded = false;
-let audioStartTime = 0;
 
 canvas.width = 1080;
 canvas.height = 1920;
 
-// Initialize
 redraw();
 updateLayersList();
 updateTimeline();
@@ -963,6 +1030,14 @@ function redraw() {
     ctx.rotate(layer.rotate * Math.PI / 180);
     ctx.scale(layer.scale, layer.scale);
 
+    // Apply filters
+    let filters = [];
+    if (layer.blur > 0) filters.push(`blur(${layer.blur}px)`);
+    if (layer.brightness !== 100) filters.push(`brightness(${layer.brightness}%)`);
+    if (layer.contrast !== 100) filters.push(`contrast(${layer.contrast}%)`);
+    if (layer.saturation !== 100) filters.push(`saturate(${layer.saturation}%)`);
+    ctx.filter = filters.join(' ') || 'none';
+
     // Draw image
     if (layer.image) {
       ctx.save();
@@ -977,6 +1052,7 @@ function redraw() {
     }
 
     // Draw text
+    ctx.filter = 'none';
     ctx.globalAlpha = layer.opacity;
     ctx.font = `900 ${layer.fontSize}px ${layer.fontFamily}`;
     ctx.textAlign = 'center';
@@ -1013,7 +1089,11 @@ function addLayer() {
     textY: 0,
     fontSize: 64,
     fontFamily: 'Arial',
-    textColor: '#ffffff'
+    textColor: '#ffffff',
+    blur: 0,
+    brightness: 100,
+    contrast: 100,
+    saturation: 100
   };
 
   getCurrentPage().layers.push(layer);
@@ -1074,7 +1154,11 @@ function updatePropertyPanel() {
     ['fontSize', 'fontSize'],
     ['layerScale', 'scale'],
     ['layerRotate', 'rotate'],
-    ['layerOpacity', 'opacity']
+    ['layerOpacity', 'opacity'],
+    ['effectBlur', 'blur'],
+    ['effectBrightness', 'brightness'],
+    ['effectContrast', 'contrast'],
+    ['effectSaturation', 'saturation']
   ];
 
   bindings.forEach(([id, prop]) => {
@@ -1128,8 +1212,8 @@ function updatePropertyValues() {
   if (!layer) return;
 
   const updates = [
-    ['imgXVal', layer.imgX],
-    ['imgYVal', layer.imgY],
+    ['imgXVal', Math.round(layer.imgX)],
+    ['imgYVal', Math.round(layer.imgY)],
     ['imgScaleVal', layer.imgScale.toFixed(2)],
     ['imgOpacityVal', Math.round(layer.imgOpacity * 100) + '%'],
     ['textXVal', Math.round(layer.textX)],
@@ -1137,13 +1221,54 @@ function updatePropertyValues() {
     ['fontSizeVal', Math.round(layer.fontSize)],
     ['layerScaleVal', layer.scale.toFixed(2)],
     ['layerRotateVal', Math.round(layer.rotate) + '°'],
-    ['layerOpacityVal', Math.round(layer.opacity * 100) + '%']
+    ['layerOpacityVal', Math.round(layer.opacity * 100) + '%'],
+    ['effectBlurVal', Math.round(layer.blur) + 'px'],
+    ['effectBrightnessVal', Math.round(layer.brightness) + '%'],
+    ['effectContrastVal', Math.round(layer.contrast) + '%'],
+    ['effectSaturationVal', Math.round(layer.saturation) + '%']
   ];
 
   updates.forEach(([id, val]) => {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
   });
+}
+
+function applyEffect(effect) {
+  if (!activeLayerId) {
+    showToast('Please select a layer first');
+    return;
+  }
+  
+  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
+  if (!layer) return;
+
+  switch(effect) {
+    case 'blur':
+      layer.blur = layer.blur > 0 ? 0 : 10;
+      break;
+    case 'grayscale':
+      layer.saturation = layer.saturation === 0 ? 100 : 0;
+      break;
+    case 'sepia':
+      layer.brightness = 110;
+      layer.contrast = 90;
+      layer.saturation = 80;
+      break;
+    case 'invert':
+      layer.brightness = layer.brightness === 0 ? 100 : 0;
+      break;
+    case 'brightness':
+      layer.brightness = 150;
+      break;
+    case 'contrast':
+      layer.contrast = 150;
+      break;
+  }
+
+  updatePropertyPanel();
+  redraw();
+  showToast(`Applied ${effect} effect`);
 }
 
 function addPage() {
@@ -1153,6 +1278,7 @@ function addPage() {
   });
   updatePagesUI();
   updateTimeline();
+  showToast('New page added');
 }
 
 function switchPage(index) {
@@ -1192,19 +1318,19 @@ function updateTimeline() {
   if (musicLoaded) {
     audioTrack.innerHTML = `
       <div class="track-item audio">
-        <span>🎵 Background Music</span>
+        <span>🎵 Music</span>
         <span>${page.duration}s</span>
       </div>
     `;
   } else {
-    audioTrack.innerHTML = '<span style="color: #666; font-size: 11px;">No audio</span>';
+    audioTrack.innerHTML = '<span style="color: #666; font-size: 10px;">No audio</span>';
   }
 }
 
 function loadMusic() {
   const url = document.getElementById('musicUrl').value.trim();
   if (!url) {
-    alert('Please enter a music URL');
+    showToast('Please enter a music URL');
     return;
   }
   
@@ -1214,7 +1340,7 @@ function loadMusic() {
   audioPlayer.onloadeddata = () => {
     musicLoaded = true;
     updateTimeline();
-    showToast('Music loaded successfully!');
+    showToast('Music loaded!');
   };
   audioPlayer.onerror = () => {
     showToast('Failed to load music');
@@ -1295,7 +1421,9 @@ function reset() {
   pause();
   currentTime = 0;
   const page = getCurrentPage();
-  document.getElementById('timeDisplay').textContent = `00:00 / ${page.duration.toString().padStart(2, '0')}:00`;
+  const mins = Math.floor(page.duration / 60);
+  const secs = Math.floor(page.duration % 60);
+  document.getElementById('timeDisplay').textContent = `00:00 / ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   if (musicLoaded) audioPlayer.currentTime = 0;
   redraw();
 }
@@ -1304,17 +1432,21 @@ function showToast(message) {
   const toast = document.getElementById('statusToast');
   document.getElementById('statusText').textContent = message;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+  setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-async function exportVideo() {
-  const page = getCurrentPage();
-  const duration = Number(document.getElementById('pageDuration').value) || page.duration;
-  
-  showToast('Rendering video...');
+async function exportAllPages() {
+  showToast('Combining all pages and rendering...');
   
   const fps = 30;
-  const totalFrames = fps * duration;
+  let totalDuration = 0;
+  
+  // Calculate total duration
+  pages.forEach(page => {
+    totalDuration += page.duration;
+  });
+  
+  const totalFrames = fps * totalDuration;
 
   try {
     const stream = canvas.captureStream(fps);
@@ -1347,10 +1479,71 @@ async function exportVideo() {
       audioPlayer.play();
     }
 
-    for (let i = 0; i < totalFrames; i++) {
-      currentTime = i / fps;
-      redraw();
-      await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+    let globalTime = 0;
+    
+    // Render all pages in sequence
+    for (let pageIdx = 0; pageIdx < pages.length; pageIdx++) {
+      const page = pages[pageIdx];
+      const pageFrames = fps * page.duration;
+      
+      for (let i = 0; i < pageFrames; i++) {
+        currentTime = i / fps;
+        globalTime += 1 / fps;
+        
+        // Switch to current page for rendering
+        const originalPage = currentPageIndex;
+        currentPageIndex = pageIdx;
+        
+        // Render current page
+        const bgColor = document.getElementById('bgColor').value;
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        page.layers.forEach(layer => {
+          ctx.save();
+          ctx.globalAlpha = layer.opacity;
+          ctx.translate(canvas.width / 2 + layer.x, canvas.height / 2 + layer.y);
+          ctx.rotate(layer.rotate * Math.PI / 180);
+          ctx.scale(layer.scale, layer.scale);
+
+          let filters = [];
+          if (layer.blur > 0) filters.push(`blur(${layer.blur}px)`);
+          if (layer.brightness !== 100) filters.push(`brightness(${layer.brightness}%)`);
+          if (layer.contrast !== 100) filters.push(`contrast(${layer.contrast}%)`);
+          if (layer.saturation !== 100) filters.push(`saturate(${layer.saturation}%)`);
+          ctx.filter = filters.join(' ') || 'none';
+
+          if (layer.image) {
+            ctx.save();
+            ctx.globalAlpha = layer.opacity * layer.imgOpacity;
+            ctx.translate(layer.imgX, layer.imgY);
+            ctx.scale(layer.imgScale, layer.imgScale);
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.drawImage(layer.image, -w / 2, -h / 2, w, h);
+            ctx.restore();
+          }
+
+          ctx.filter = 'none';
+          ctx.globalAlpha = layer.opacity;
+          ctx.font = `900 ${layer.fontSize}px ${layer.fontFamily}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = layer.textColor;
+          
+          const lines = layer.text.split('\n');
+          lines.forEach((line, j) => {
+            const yOffset = layer.textY + (j - (lines.length - 1) / 2) * layer.fontSize * 1.2;
+            ctx.fillText(line, layer.textX, yOffset);
+          });
+
+          ctx.restore();
+        });
+        
+        currentPageIndex = originalPage;
+        
+        await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+      }
     }
 
     if (musicLoaded) audioPlayer.pause();
@@ -1361,15 +1554,16 @@ async function exportVideo() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `video-${Date.now()}.webm`;
+      a.download = `video-all-pages-${Date.now()}.webm`;
       a.click();
       URL.revokeObjectURL(url);
       
       reset();
-      showToast('Video exported successfully!');
+      showToast(`Exported ${pages.length} pages (${totalDuration}s)!`);
     };
   } catch (error) {
     showToast('Export failed: ' + error.message);
+    console.error(error);
   }
 }
 
