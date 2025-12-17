@@ -2,798 +2,1101 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Advanced AI Video Editor</title>
+<title>CapCut Video Editor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:#0a0a0f;
-  color:#e5e7eb;
-  font-family:system-ui,-apple-system,sans-serif;
-  overflow:hidden;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-.container{
-  display:grid;
-  grid-template-columns:280px 1fr 340px;
-  height:100vh;
-  gap:0;
+
+body {
+  background: #1a1a1a;
+  color: #e5e7eb;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow: hidden;
+  height: 100vh;
 }
-.left-panel,.right-panel{
-  background:#111118;
-  border-right:1px solid #1e1e2e;
-  overflow-y:auto;
-  padding:16px;
+
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
-.right-panel{
-  border-right:none;
-  border-left:1px solid #1e1e2e;
-  max-height:100vh;
-  overflow-y:scroll;
+
+/* TOP BAR */
+.top-bar {
+  background: #0a0a0a;
+  border-bottom: 1px solid #333;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 56px;
 }
-.right-panel::-webkit-scrollbar{width:8px}
-.right-panel::-webkit-scrollbar-track{background:#1a1a24}
-.right-panel::-webkit-scrollbar-thumb{background:#4f46e5;border-radius:4px}
-.center{
-  display:flex;
-  flex-direction:column;
-  background:#0a0a0f;
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00d4ff, #ff00d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.canvas-container{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  position:relative;
-  cursor:move;
+
+.top-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
-.canvas-container.dragging{cursor:grabbing}
-canvas{
-  max-width:100%;
-  max-height:100%;
-  background:#000;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-  cursor:grab;
+
+.btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
-canvas:active{cursor:grabbing}
-.timeline{
-  height:140px;
-  background:#16161d;
-  border-top:1px solid #1e1e2e;
-  padding:10px;
-  overflow-x:auto;
+
+.btn-primary {
+  background: linear-gradient(135deg, #00d4ff, #0099ff);
+  color: #fff;
 }
-h3{
-  color:#fff;
-  margin-bottom:12px;
-  font-size:14px;
-  text-transform:uppercase;
-  letter-spacing:0.5px;
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
 }
-.section{
-  margin-bottom:20px;
-  padding-bottom:16px;
-  border-bottom:1px solid #1e1e2e;
+
+.btn-secondary {
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
 }
-.section:last-child{border-bottom:none}
-label{
-  display:block;
-  font-size:12px;
-  color:#9ca3af;
-  margin:8px 0 4px;
-  font-weight:500;
+
+.btn-secondary:hover {
+  background: #333;
 }
-input[type="text"],input[type="url"],input[type="number"],select,textarea{
-  width:100%;
-  padding:8px 10px;
-  background:#1a1a24;
-  color:#e5e7eb;
-  border:1px solid #2a2a3a;
-  border-radius:6px;
-  font-size:13px;
-  transition:border 0.2s;
+
+/* MAIN CONTENT */
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
-input:focus,select:focus,textarea:focus{
-  outline:none;
-  border-color:#4f46e5;
+
+/* LEFT PANEL */
+.left-panel {
+  width: 80px;
+  background: #0f0f0f;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
 }
-textarea{
-  resize:vertical;
-  min-height:60px;
-  font-family:inherit;
+
+.tool-btn {
+  width: 100%;
+  padding: 16px 8px;
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  transition: all 0.2s;
 }
-input[type="range"]{
-  width:100%;
-  height:6px;
-  background:#2a2a3a;
-  border-radius:3px;
-  outline:none;
-  -webkit-appearance:none;
+
+.tool-btn:hover,
+.tool-btn.active {
+  background: #1a1a1a;
+  color: #00d4ff;
 }
-input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  width:16px;
-  height:16px;
-  background:#4f46e5;
-  border-radius:50%;
-  cursor:pointer;
+
+.tool-icon {
+  font-size: 24px;
 }
-input[type="range"]::-moz-range-thumb{
-  width:16px;
-  height:16px;
-  background:#4f46e5;
-  border-radius:50%;
-  cursor:pointer;
-  border:none;
+
+/* CENTER CANVAS AREA */
+.canvas-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #161616;
+  position: relative;
 }
-input[type="color"]{
-  width:100%;
-  height:36px;
-  padding:2px;
-  border:1px solid #2a2a3a;
-  border-radius:6px;
-  background:#1a1a24;
-  cursor:pointer;
+
+.canvas-controls {
+  padding: 12px 16px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-input[type="file"]{
-  font-size:12px;
-  padding:6px;
-  cursor:pointer;
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
-button{
-  width:100%;
-  padding:10px 16px;
-  font-weight:600;
-  font-size:13px;
-  border-radius:8px;
-  cursor:pointer;
-  border:none;
-  transition:all 0.2s;
-  margin-top:8px;
+
+.zoom-btn {
+  width: 32px;
+  height: 32px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
 }
-.primary{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:#fff;
+
+.zoom-btn:hover {
+  background: #333;
 }
-.primary:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 12px rgba(79,70,229,0.4);
+
+.zoom-level {
+  min-width: 60px;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
 }
-.secondary{
-  background:#1a1a24;
-  color:#e5e7eb;
-  border:1px solid #2a2a3a;
+
+.canvas-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  position: relative;
+  background: 
+    repeating-linear-gradient(0deg, transparent, transparent 19px, #1a1a1a 19px, #1a1a1a 20px),
+    repeating-linear-gradient(90deg, transparent, transparent 19px, #1a1a1a 19px, #1a1a1a 20px);
+  background-size: 20px 20px;
 }
-.secondary:hover{background:#22222d}
-.danger{background:#dc2626;color:#fff}
-.danger:hover{background:#b91c1c}
-.layer-item{
-  background:#1a1a24;
-  padding:10px;
-  margin:6px 0;
-  border-radius:6px;
-  border:2px solid transparent;
-  cursor:pointer;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  transition:all 0.2s;
+
+.canvas-wrapper {
+  position: relative;
+  transform-origin: center center;
+  transition: transform 0.2s;
 }
-.layer-item:hover{background:#22222d}
-.layer-item.active{border-color:#4f46e5;background:#1e1e3a}
-.layer-badge{
-  font-size:10px;
-  padding:2px 6px;
-  background:#2a2a3a;
-  border-radius:4px;
-  text-transform:uppercase;
+
+canvas {
+  display: block;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  cursor: move;
 }
-.value-display{
-  display:inline-block;
-  float:right;
-  font-size:11px;
-  color:#6b7280;
-  font-weight:600;
+
+/* ELEMENT HANDLES */
+.element-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #00d4ff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  z-index: 100;
 }
-.grid-2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
+
+.handle-tl { cursor: nw-resize; }
+.handle-tr { cursor: ne-resize; }
+.handle-bl { cursor: sw-resize; }
+.handle-br { cursor: se-resize; }
+.handle-rotate {
+  width: 16px;
+  height: 16px;
+  background: #ff00d4;
+  cursor: grab;
 }
-.preset-btn{
-  padding:8px;
-  background:#1a1a24;
-  border:1px solid #2a2a3a;
-  border-radius:6px;
-  color:#e5e7eb;
-  cursor:pointer;
-  font-size:12px;
-  text-align:center;
-  transition:all 0.2s;
+
+/* RIGHT PANEL */
+.right-panel {
+  width: 340px;
+  background: #0f0f0f;
+  border-left: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 56px - 200px);
+  overflow-y: auto;
 }
-.preset-btn:hover{background:#22222d;border-color:#4f46e5}
-.export-options{display:grid;gap:8px}
-.status{
-  position:fixed;
-  bottom:20px;
-  right:360px;
-  background:#1a1a24;
-  padding:12px 20px;
-  border-radius:8px;
-  border:1px solid #2a2a3a;
-  display:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
-  z-index:1000;
+
+.right-panel::-webkit-scrollbar {
+  width: 8px;
 }
-.status.show{display:block}
-.loader{
-  display:inline-block;
-  width:14px;
-  height:14px;
-  border:2px solid #4f46e5;
-  border-top-color:transparent;
-  border-radius:50%;
-  animation:spin 0.8s linear infinite;
-  margin-right:8px;
+
+.right-panel::-webkit-scrollbar-track {
+  background: #1a1a1a;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-.help-text{
-  font-size:11px;
-  color:#6b7280;
-  margin-top:4px;
-  font-style:italic;
+
+.right-panel::-webkit-scrollbar-thumb {
+  background: #00d4ff;
+  border-radius: 4px;
 }
-.music-controls{
-  display:flex;
-  gap:8px;
-  margin-top:8px;
+
+.panel-section {
+  padding: 16px;
+  border-bottom: 1px solid #2a2a2a;
 }
-.music-controls button{
-  width:auto;
-  padding:8px 12px;
-  font-size:12px;
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.property-row {
+  margin-bottom: 12px;
+}
+
+.property-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 6px;
+}
+
+.property-value {
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: #2a2a2a;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #00d4ff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #00d4ff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 8px 10px;
+  background: #1a1a1a;
+  color: #e5e7eb;
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #00d4ff;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 36px;
+  padding: 2px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #1a1a1a;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  font-size: 12px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.preset-btn {
+  padding: 12px 8px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 11px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.preset-btn:hover {
+  background: #2a2a2a;
+  border-color: #00d4ff;
+}
+
+.preset-btn small {
+  display: block;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* TIMELINE */
+.timeline {
+  height: 200px;
+  background: #0a0a0a;
+  border-top: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-header {
+  padding: 8px 16px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.playback-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.play-btn {
+  width: 32px;
+  height: 32px;
+  background: #00d4ff;
+  border: none;
+  border-radius: 50%;
+  color: #000;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-btn:hover {
+  background: #00b8e6;
+}
+
+.time-display {
+  font-size: 13px;
+  color: #999;
+  font-variant-numeric: tabular-nums;
+  min-width: 100px;
+}
+
+.timeline-content {
+  flex: 1;
+  padding: 12px;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.timeline-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: max-content;
+}
+
+.track {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 8px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.track-label {
+  font-size: 11px;
+  color: #666;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.track-items {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  position: relative;
+}
+
+.track-item {
+  background: linear-gradient(135deg, #00d4ff, #0099ff);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #fff;
+  cursor: move;
+  position: relative;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.track-item:hover {
+  opacity: 0.9;
+}
+
+.track-item.audio {
+  background: linear-gradient(135deg, #ff00d4, #ff0080);
+}
+
+.layer-list {
+  margin-top: 12px;
+}
+
+.layer-item {
+  background: #1a1a1a;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.layer-item:hover {
+  background: #2a2a2a;
+}
+
+.layer-item.active {
+  border-color: #00d4ff;
+  background: #1a2a3a;
+}
+
+.layer-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: #2a2a2a;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.help-text {
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.status-toast {
+  position: fixed;
+  bottom: 220px;
+  right: 360px;
+  background: #1a1a1a;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.status-toast.show {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loader {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #00d4ff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.pages-container {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #333;
+  overflow-x: auto;
+}
+
+.page-thumb {
+  min-width: 80px;
+  height: 60px;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #666;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.page-thumb:hover {
+  border-color: #00d4ff;
+}
+
+.page-thumb.active {
+  border-color: #00d4ff;
+  background: #1a2a3a;
+  color: #00d4ff;
+}
+
+.page-duration {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 9px;
+  background: #000;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.add-page-btn {
+  min-width: 80px;
+  height: 60px;
+  background: #1a1a1a;
+  border: 2px dashed #444;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.add-page-btn:hover {
+  border-color: #00d4ff;
+  color: #00d4ff;
+}
+
+.audio-waveform {
+  width: 100%;
+  height: 32px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  margin-top: 8px;
+  display: none;
+}
+
+.audio-waveform.show {
+  display: block;
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <!-- LEFT PANEL: LAYERS -->
-  <div class="left-panel">
-    <h3>🎬 Layers</h3>
-    <button class="primary" onclick="addLayer('group')">+ Add Group (Text on Image)</button>
-    <div id="layers" style="margin-top:12px"></div>
-  </div>
-
-  <!-- CENTER: CANVAS -->
-  <div class="center">
-    <div class="canvas-container" id="canvasContainer">
-      <canvas id="canvas"></canvas>
-    </div>
-    <div class="timeline">
-      <div style="color:#9ca3af;font-size:12px;margin-bottom:8px">Timeline • Drag on canvas to move elements</div>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <button class="secondary" style="width:auto;padding:8px 16px" onclick="play()">▶ Play</button>
-        <button class="secondary" style="width:auto;padding:8px 16px" onclick="pause()">⏸ Pause</button>
-        <button class="secondary" style="width:auto;padding:8px 16px" onclick="reset()">⏮ Reset</button>
-        <div style="flex:1"></div>
-        <span id="timeDisplay" style="color:#9ca3af;font-size:13px;padding:8px">0.0s</span>
-      </div>
-      <div id="musicControls" style="display:none">
-        <audio id="audioPlayer" style="width:100%;height:32px"></audio>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT PANEL: PROPERTIES -->
-  <div class="right-panel">
-    <h3>⚙️ Canvas Settings</h3>
-    
-    <div class="section">
-      <label>Canvas Size</label>
-      <div class="grid-2">
-        <div class="preset-btn" onclick="setCanvasSize(1080,1920)">9:16<br><small>1080×1920</small></div>
-        <div class="preset-btn" onclick="setCanvasSize(1920,1080)">16:9<br><small>1920×1080</small></div>
-        <div class="preset-btn" onclick="setCanvasSize(1080,1080)">1:1<br><small>1080×1080</small></div>
-        <div class="preset-btn" onclick="setCanvasSize(720,1280)">9:16 HD<br><small>720×1280</small></div>
-      </div>
-      <label style="margin-top:8px">Background Color</label>
-      <input type="color" id="bgColor" value="#000000">
-    </div>
-
-    <div class="section">
-      <h3>🎵 Background Music</h3>
-      <label>Music URL (MP3/Audio)</label>
-      <input type="url" id="musicUrl" placeholder="https://example.com/music.mp3">
-      <p class="help-text">Paste direct link to audio file</p>
-      <div class="music-controls">
-        <button class="secondary" onclick="loadMusic()">Load Music</button>
-        <button class="secondary" onclick="clearMusic()">Clear</button>
-      </div>
-    </div>
-
-    <div id="propertyPanel" style="display:none">
-      <!-- GROUP PROPERTIES -->
-      <div id="groupProps">
-        <div class="section">
-          <h3>📸 Background Image</h3>
-          <label>Upload Background Image</label>
-          <input type="file" id="groupImgUpload" accept="image/*">
-          <p class="help-text">Or drag image on canvas to reposition</p>
-          
-          <label>Image Position X <span class="value-display" id="imgPosXVal">0</span></label>
-          <input type="range" id="imgPosX" min="-500" max="500" value="0">
-          <label>Image Position Y <span class="value-display" id="imgPosYVal">0</span></label>
-          <input type="range" id="imgPosY" min="-500" max="500" value="0">
-          <label>Image Scale <span class="value-display" id="imgScaleVal">1.0</span></label>
-          <input type="range" id="imgScale" min="0.5" max="3" step="0.01" value="1">
-          
-          <label>Image Opacity <span class="value-display" id="imgOpacityVal">100%</span></label>
-          <input type="range" id="imgOpacity" min="0" max="1" step="0.01" value="1">
-          <label>Image Blur <span class="value-display" id="imgBlurVal">0px</span></label>
-          <input type="range" id="imgBlur" min="0" max="30" value="0">
-          <label>Image Fit</label>
-          <select id="imgFit">
-            <option value="cover">Cover</option>
-            <option value="contain">Contain</option>
-            <option value="fill">Fill</option>
-          </select>
-        </div>
-
-        <div class="section">
-          <h3>💬 Text Content</h3>
-          <label>Text</label>
-          <textarea id="groupText" placeholder="Enter your text...">YOUR TEXT HERE</textarea>
-        </div>
-
-        <div class="section">
-          <h3>🎨 Text Style</h3>
-          <label>Font Family</label>
-          <select id="groupFontFamily">
-            <option value="Arial">Arial</option>
-            <option value="Helvetica">Helvetica</option>
-            <option value="Impact">Impact</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Verdana">Verdana</option>
-            <option value="'Courier New'">Courier New</option>
-            <option value="'Times New Roman'">Times New Roman</option>
-            <option value="system-ui">System UI</option>
-          </select>
-          <label>Font Size <span class="value-display" id="groupFontSizeVal">64px</span></label>
-          <input type="range" id="groupFontSize" min="12" max="200" value="64">
-          <label>Font Weight</label>
-          <select id="groupFontWeight">
-            <option value="300">Light</option>
-            <option value="400">Normal</option>
-            <option value="600">Semi-Bold</option>
-            <option value="700">Bold</option>
-            <option value="900" selected>Black</option>
-          </select>
-          <label>Text Color</label>
-          <input type="color" id="groupTextColor" value="#ffffff">
-        </div>
-
-        <div class="section">
-          <h3>📍 Text Position</h3>
-          <label>Position X <span class="value-display" id="textXVal">0</span></label>
-          <input type="range" id="textX" min="-1000" max="1000" value="0">
-          <label>Position Y <span class="value-display" id="textYVal">0</span></label>
-          <input type="range" id="textY" min="-1000" max="1000" value="0">
-          <label>Text Align</label>
-          <select id="textAlign">
-            <option value="left">Left</option>
-            <option value="center" selected>Center</option>
-            <option value="right">Right</option>
-          </select>
-          <label>Line Height <span class="value-display" id="lineHeightVal">1.2</span></label>
-          <input type="range" id="lineHeight" min="0.8" max="2.5" step="0.1" value="1.2">
-        </div>
-
-        <div class="section">
-          <h3>✨ Text Effects</h3>
-          <label>Text Background Color</label>
-          <input type="color" id="textBgColor" value="#000000">
-          <label>Text Background Opacity <span class="value-display" id="textBgOpacityVal">0%</span></label>
-          <input type="range" id="textBgOpacity" min="0" max="1" step="0.01" value="0">
-          <label>Background Padding <span class="value-display" id="textBgPaddingVal">20px</span></label>
-          <input type="range" id="textBgPadding" min="0" max="100" value="20">
-          
-          <label>Stroke Width <span class="value-display" id="strokeWidthVal">0px</span></label>
-          <input type="range" id="strokeWidth" min="0" max="20" value="0">
-          <label>Stroke Color</label>
-          <input type="color" id="strokeColor" value="#000000">
-          
-          <label>Shadow Blur <span class="value-display" id="shadowBlurVal">10px</span></label>
-          <input type="range" id="shadowBlur" min="0" max="50" value="10">
-          <label>Shadow X <span class="value-display" id="shadowXVal">0px</span></label>
-          <input type="range" id="shadowX" min="-30" max="30" value="0">
-          <label>Shadow Y <span class="value-display" id="shadowYVal">0px</span></label>
-          <input type="range" id="shadowY" min="-30" max="30" value="0">
-          <label>Shadow Color</label>
-          <input type="color" id="shadowColor" value="#000000">
-        </div>
-
-        <div class="section">
-          <h3>🎯 Group Transform</h3>
-          <label>Position X <span class="value-display" id="groupXVal">0</span></label>
-          <input type="range" id="groupX" min="-1000" max="1000" value="0">
-          <label>Position Y <span class="value-display" id="groupYVal">0</span></label>
-          <input type="range" id="groupY" min="-1000" max="1000" value="0">
-          <label>Scale <span class="value-display" id="groupScaleVal">1.0</span></label>
-          <input type="range" id="groupScale" min="0.1" max="3" step="0.01" value="1">
-          <label>Rotation <span class="value-display" id="groupRotateVal">0°</span></label>
-          <input type="range" id="groupRotate" min="-180" max="180" value="0">
-          <label>Group Opacity <span class="value-display" id="groupOpacityVal">100%</span></label>
-          <input type="range" id="groupOpacity" min="0" max="1" step="0.01" value="1">
-        </div>
-
-        <button class="danger" onclick="deleteLayer()">🗑 Delete Layer</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3 style="margin-top:20px">📤 Export</h3>
-      <label>Duration (seconds)</label>
-      <input type="number" id="duration" value="5" min="1" max="30">
-      <label>Frame Rate</label>
-      <select id="fps">
-        <option value="24">24 FPS</option>
-        <option value="30" selected>30 FPS</option>
-        <option value="60">60 FPS</option>
+<div class="editor-container">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="logo">✂️ CapCut Editor</div>
+    <div class="top-actions">
+      <select id="canvasSizeSelect" style="padding: 8px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; cursor: pointer;">
+        <option value="1080,1920">9:16 Portrait</option>
+        <option value="1920,1080">16:9 Landscape</option>
+        <option value="1080,1080">1:1 Square</option>
+        <option value="720,1280">9:16 HD</option>
       </select>
-      <div class="export-options">
-        <button class="primary" onclick="exportVideo('webm')">📹 Export Video (WebM)</button>
+      <button class="btn btn-primary" onclick="exportVideo()">📤 Export Video</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- LEFT TOOLS -->
+    <div class="left-panel">
+      <button class="tool-btn active">
+        <div class="tool-icon">🎬</div>
+        <div>Media</div>
+      </button>
+      <button class="tool-btn">
+        <div class="tool-icon">📝</div>
+        <div>Text</div>
+      </button>
+      <button class="tool-btn">
+        <div class="tool-icon">🎵</div>
+        <div>Audio</div>
+      </button>
+      <button class="tool-btn">
+        <div class="tool-icon">✨</div>
+        <div>Effects</div>
+      </button>
+    </div>
+
+    <!-- CENTER CANVAS -->
+    <div class="canvas-area">
+      <div class="pages-container" id="pagesContainer">
+        <div class="page-thumb active" onclick="switchPage(0)">
+          <span>Page 1</span>
+          <div class="page-duration">5s</div>
+        </div>
+        <div class="add-page-btn" onclick="addPage()">+</div>
       </div>
-      <p class="help-text">Video will include audio if music is loaded</p>
+
+      <div class="canvas-controls">
+        <span style="font-size: 12px; color: #999;">Canvas</span>
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="zoomOut()">−</button>
+          <div class="zoom-level" id="zoomLevel">100%</div>
+          <button class="zoom-btn" onclick="zoomIn()">+</button>
+          <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">⊙</button>
+        </div>
+      </div>
+
+      <div class="canvas-viewport" id="canvasViewport">
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PROPERTIES -->
+    <div class="right-panel" id="rightPanel">
+      <div class="panel-section">
+        <div class="section-title">📐 Canvas Settings</div>
+        <div class="preset-grid">
+          <div class="preset-btn" onclick="setCanvasSize(1080,1920)">9:16<br><small>1080×1920</small></div>
+          <div class="preset-btn" onclick="setCanvasSize(1920,1080)">16:9<br><small>1920×1080</small></div>
+          <div class="preset-btn" onclick="setCanvasSize(1080,1080)">1:1<br><small>1080×1080</small></div>
+          <div class="preset-btn" onclick="setCanvasSize(720,1280)">HD<br><small>720×1280</small></div>
+        </div>
+        <div class="property-row" style="margin-top: 12px;">
+          <div class="property-label">Background Color</div>
+          <input type="color" id="bgColor" value="#000000">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🎵 Background Music</div>
+        <div class="property-row">
+          <input type="url" id="musicUrl" placeholder="Paste audio URL...">
+          <p class="help-text">Direct MP3/audio link</p>
+        </div>
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="loadMusic()">Load Music</button>
+        <audio id="audioPlayer" controls style="width: 100%; margin-top: 8px; display: none;"></audio>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🎬 Layers</div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="addLayer()">+ Add Layer (Text + Image)</button>
+        <div class="layer-list" id="layersList"></div>
+      </div>
+
+      <div id="layerProperties" style="display: none;">
+        <div class="panel-section">
+          <div class="section-title">📸 Background Image</div>
+          <input type="file" id="imageUpload" accept="image/*">
+          <div class="property-row">
+            <div class="property-label">
+              <span>Position X</span>
+              <span class="property-value" id="imgXVal">0</span>
+            </div>
+            <input type="range" id="imgX" min="-1000" max="1000" value="0">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Position Y</span>
+              <span class="property-value" id="imgYVal">0</span>
+            </div>
+            <input type="range" id="imgY" min="-1000" max="1000" value="0">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Scale</span>
+              <span class="property-value" id="imgScaleVal">1.0</span>
+            </div>
+            <input type="range" id="imgScale" min="0.5" max="3" step="0.01" value="1">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Opacity</span>
+              <span class="property-value" id="imgOpacityVal">100%</span>
+            </div>
+            <input type="range" id="imgOpacity" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">💬 Text</div>
+          <textarea id="textContent" placeholder="Enter text...">YOUR TEXT</textarea>
+          <div class="property-row" style="margin-top: 12px;">
+            <div class="property-label">
+              <span>Font Size</span>
+              <span class="property-value" id="fontSizeVal">64</span>
+            </div>
+            <input type="range" id="fontSize" min="12" max="200" value="64">
+          </div>
+          <div class="property-row">
+            <div class="property-label">Font Family</div>
+            <select id="fontFamily">
+              <option value="Arial">Arial</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Impact">Impact</option>
+              <option value="Georgia">Georgia</option>
+              <option value="'Courier New'">Courier</option>
+            </select>
+          </div>
+          <div class="property-row">
+            <div class="property-label">Text Color</div>
+            <input type="color" id="textColor" value="#ffffff">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Position X</span>
+              <span class="property-value" id="textXVal">0</span>
+            </div>
+            <input type="range" id="textX" min="-1000" max="1000" value="0">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Position Y</span>
+              <span class="property-value" id="textYVal">0</span>
+            </div>
+            <input type="range" id="textY" min="-1000" max="1000" value="0">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">🎨 Transform</div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Scale</span>
+              <span class="property-value" id="layerScaleVal">1.0</span>
+            </div>
+            <input type="range" id="layerScale" min="0.1" max="3" step="0.01" value="1">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Rotation</span>
+              <span class="property-value" id="layerRotateVal">0°</span>
+            </div>
+            <input type="range" id="layerRotate" min="-180" max="180" value="0">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Opacity</span>
+              <span class="property-value" id="layerOpacityVal">100%</span>
+            </div>
+            <input type="range" id="layerOpacity" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <button class="btn btn-secondary" style="width: 100%; background: #dc2626;" onclick="deleteLayer()">🗑 Delete Layer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline">
+    <div class="timeline-header">
+      <div class="playback-controls">
+        <button class="play-btn" onclick="play()">▶</button>
+        <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="pause()">⏸</button>
+        <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="reset()">⏮</button>
+      </div>
+      <div class="time-display" id="timeDisplay">00:00 / 05:00</div>
+      <div style="flex: 1;"></div>
+      <input type="number" id="pageDuration" value="5" min="1" max="30" style="width: 80px; padding: 6px 8px; text-align: center;" placeholder="Duration">
+      <span style="font-size: 12px; color: #999;">seconds</span>
+    </div>
+    <div class="timeline-content">
+      <div class="timeline-tracks" id="timelineTracks">
+        <div class="track">
+          <div class="track-label">Video</div>
+          <div class="track-items" id="videoTrack"></div>
+        </div>
+        <div class="track">
+          <div class="track-label">Audio</div>
+          <div class="track-items" id="audioTrack"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="status" id="status"></div>
+<div class="status-toast" id="statusToast">
+  <div class="loader"></div>
+  <span id="statusText"></span>
+</div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const canvasContainer = document.getElementById("canvasContainer");
-const audioPlayer = document.getElementById("audioPlayer");
-const musicControls = document.getElementById("musicControls");
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const canvasWrapper = document.getElementById('canvasWrapper');
+const audioPlayer = document.getElementById('audioPlayer');
 
-canvas.width = 1080;
-canvas.height = 1920;
+let pages = [{
+  layers: [],
+  duration: 5
+}];
 
-let layers = [];
+let currentPageIndex = 0;
 let activeLayerId = null;
+let zoomLevel = 1;
 let isPlaying = false;
 let currentTime = 0;
 let animationId = null;
 let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
-let dragType = null;
 let musicLoaded = false;
+let audioStartTime = 0;
 
+canvas.width = 1080;
+canvas.height = 1920;
+
+// Initialize
 redraw();
 updateLayersList();
+updateTimeline();
 
-// Canvas drag functionality
+// Canvas drag
 canvas.addEventListener('mousedown', e => {
-  if(!activeLayerId) return;
-  const layer = layers.find(l => l.id === activeLayerId);
-  if(!layer) return;
+  if (!activeLayerId) return;
+  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
+  if (!layer) return;
   
   isDragging = true;
   const rect = canvas.getBoundingClientRect();
   dragStartX = e.clientX - rect.left;
   dragStartY = e.clientY - rect.top;
-  
-  // Determine if dragging text or image
-  const canvasX = (dragStartX / rect.width) * canvas.width;
-  const canvasY = (dragStartY / rect.height) * canvas.height;
-  dragType = 'group';
-  
   canvas.style.cursor = 'grabbing';
 });
 
 canvas.addEventListener('mousemove', e => {
-  if(!isDragging || !activeLayerId) return;
+  if (!isDragging || !activeLayerId) return;
   
-  const layer = layers.find(l => l.id === activeLayerId);
-  if(!layer) return;
+  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
+  if (!layer) return;
   
   const rect = canvas.getBoundingClientRect();
   const currentX = e.clientX - rect.left;
   const currentY = e.clientY - rect.top;
   
-  const deltaX = ((currentX - dragStartX) / rect.width) * canvas.width;
-  const deltaY = ((currentY - dragStartY) / rect.height) * canvas.height;
+  const deltaX = ((currentX - dragStartX) / rect.width) * canvas.width / zoomLevel;
+  const deltaY = ((currentY - dragStartY) / rect.height) * canvas.height / zoomLevel;
   
-  if(dragType === 'group'){
-    layer.x += deltaX;
-    layer.y += deltaY;
-    document.getElementById('groupX').value = layer.x;
-    document.getElementById('groupY').value = layer.y;
-    document.getElementById('groupXVal').textContent = Math.round(layer.x) + 'px';
-    document.getElementById('groupYVal').textContent = Math.round(layer.y) + 'px';
-  }
+  layer.x += deltaX;
+  layer.y += deltaY;
   
   dragStartX = currentX;
   dragStartY = currentY;
+  
+  updatePropertyValues();
   redraw();
 });
 
 canvas.addEventListener('mouseup', () => {
   isDragging = false;
-  canvas.style.cursor = 'grab';
+  canvas.style.cursor = 'move';
 });
 
 canvas.addEventListener('mouseleave', () => {
   isDragging = false;
-  canvas.style.cursor = 'grab';
+  canvas.style.cursor = 'move';
 });
 
-function redraw(){
-  const bgColor = document.getElementById("bgColor").value;
+function getCurrentPage() {
+  return pages[currentPageIndex];
+}
+
+function redraw() {
+  const bgColor = document.getElementById('bgColor').value;
   ctx.fillStyle = bgColor;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  layers.forEach(layer => {
-    if(layer.type === "group"){
-      drawGroup(layer);
-    }
-  });
-}
-
-function drawGroup(layer){
-  ctx.save();
-  ctx.globalAlpha = layer.opacity;
-  ctx.translate(canvas.width/2 + layer.x, canvas.height/2 + layer.y);
-  ctx.rotate(layer.rotate * Math.PI / 180);
-  ctx.scale(layer.scale, layer.scale);
-
-  // Draw background image
-  if(layer.image){
+  const page = getCurrentPage();
+  page.layers.forEach(layer => {
     ctx.save();
-    ctx.globalAlpha = layer.opacity * layer.imgOpacity;
-    
-    if(layer.imgBlur > 0){
-      ctx.filter = `blur(${layer.imgBlur}px)`;
+    ctx.globalAlpha = layer.opacity;
+    ctx.translate(canvas.width / 2 + layer.x, canvas.height / 2 + layer.y);
+    ctx.rotate(layer.rotate * Math.PI / 180);
+    ctx.scale(layer.scale, layer.scale);
+
+    // Draw image
+    if (layer.image) {
+      ctx.save();
+      ctx.globalAlpha = layer.opacity * layer.imgOpacity;
+      ctx.translate(layer.imgX, layer.imgY);
+      ctx.scale(layer.imgScale, layer.imgScale);
+
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.drawImage(layer.image, -w / 2, -h / 2, w, h);
+      ctx.restore();
     }
 
-    ctx.translate(layer.imgPosX, layer.imgPosY);
-    ctx.scale(layer.imgScale, layer.imgScale);
-
-    const ratio = layer.image.width / layer.image.height;
-    const canvasRatio = canvas.width / canvas.height;
-    let w, h, x, y;
-    
-    if(layer.imgFit === "cover"){
-      if(canvasRatio > ratio){
-        w = canvas.width;
-        h = w / ratio;
-      } else {
-        h = canvas.height;
-        w = h * ratio;
-      }
-    } else if(layer.imgFit === "contain"){
-      if(canvasRatio < ratio){
-        w = canvas.width;
-        h = w / ratio;
-      } else {
-        h = canvas.height;
-        w = h * ratio;
-      }
-    } else {
-      w = canvas.width;
-      h = canvas.height;
-    }
-
-    x = -w / 2;
-    y = -h / 2;
-
-    ctx.drawImage(layer.image, x, y, w, h);
-    ctx.restore();
-  }
-
-  // Draw text
-  ctx.globalAlpha = layer.opacity;
-  ctx.font = `${layer.fontWeight} ${layer.fontSize}px ${layer.fontFamily}`;
-  ctx.textAlign = layer.textAlign;
-  ctx.textBaseline = "middle";
-
-  const lines = layer.text.split('\n');
-  const lineHeightPx = layer.fontSize * layer.lineHeight;
-
-  lines.forEach((line, i) => {
-    const yOffset = layer.textY + (i - (lines.length - 1) / 2) * lineHeightPx;
-    
-    // Text background
-    if(layer.textBgOpacity > 0){
-      const metrics = ctx.measureText(line);
-      const padding = layer.textBgPadding;
-      let bgX;
-      
-      if(layer.textAlign === "center"){
-        bgX = layer.textX - metrics.width / 2 - padding;
-      } else if(layer.textAlign === "right"){
-        bgX = layer.textX - metrics.width - padding;
-      } else {
-        bgX = layer.textX - padding;
-      }
-
-      const alpha = Math.round(layer.textBgOpacity * 255).toString(16).padStart(2, '0');
-      ctx.fillStyle = layer.textBgColor + alpha;
-      ctx.fillRect(
-        bgX,
-        yOffset - layer.fontSize / 2 - padding,
-        metrics.width + padding * 2,
-        layer.fontSize + padding * 2
-      );
-    }
-
-    // Shadow
-    if(layer.shadowBlur > 0){
-      ctx.shadowBlur = layer.shadowBlur;
-      ctx.shadowOffsetX = layer.shadowX;
-      ctx.shadowOffsetY = layer.shadowY;
-      ctx.shadowColor = layer.shadowColor;
-    }
-
-    // Stroke
-    if(layer.strokeWidth > 0){
-      ctx.strokeStyle = layer.strokeColor;
-      ctx.lineWidth = layer.strokeWidth;
-      ctx.lineJoin = "round";
-      ctx.strokeText(line, layer.textX, yOffset);
-    }
-
-    // Text fill
+    // Draw text
+    ctx.globalAlpha = layer.opacity;
+    ctx.font = `900 ${layer.fontSize}px ${layer.fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = layer.textColor;
-    ctx.fillText(line, layer.textX, yOffset);
     
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-  });
+    const lines = layer.text.split('\n');
+    lines.forEach((line, i) => {
+      const yOffset = layer.textY + (i - (lines.length - 1) / 2) * layer.fontSize * 1.2;
+      ctx.fillText(line, layer.textX, yOffset);
+    });
 
-  ctx.restore();
+    ctx.restore();
+  });
 }
 
-function addLayer(type){
+function addLayer() {
   const id = Date.now();
   const layer = {
     id,
-    type: "group",
-    name: `Group ${layers.length + 1}`
+    name: `Layer ${getCurrentPage().layers.length + 1}`,
+    x: 0,
+    y: 0,
+    scale: 1,
+    rotate: 0,
+    opacity: 1,
+    image: null,
+    imgX: 0,
+    imgY: 0,
+    imgScale: 1,
+    imgOpacity: 1,
+    text: 'YOUR TEXT',
+    textX: 0,
+    textY: 0,
+    fontSize: 64,
+    fontFamily: 'Arial',
+    textColor: '#ffffff'
   };
 
-  layer.image = null;
-  layer.text = "YOUR TEXT HERE";
-  layer.x = 0;
-  layer.y = 0;
-  layer.scale = 1;
-  layer.rotate = 0;
-  layer.opacity = 1;
-  layer.imgPosX = 0;
-  layer.imgPosY = 0;
-  layer.imgScale = 1;
-  layer.imgOpacity = 1;
-  layer.imgBlur = 0;
-  layer.imgFit = "cover";
-  layer.textX = 0;
-  layer.textY = 0;
-  layer.fontSize = 64;
-  layer.fontFamily = "Arial";
-  layer.fontWeight = "900";
-  layer.textColor = "#ffffff";
-  layer.textAlign = "center";
-  layer.lineHeight = 1.2;
-  layer.textBgColor = "#000000";
-  layer.textBgOpacity = 0;
-  layer.textBgPadding = 20;
-  layer.strokeWidth = 0;
-  layer.strokeColor = "#000000";
-  layer.shadowBlur = 10;
-  layer.shadowX = 0;
-  layer.shadowY = 0;
-  layer.shadowColor = "#000000";
-
-  layers.push(layer);
+  getCurrentPage().layers.push(layer);
   selectLayer(id);
   updateLayersList();
+  updateTimeline();
   redraw();
 }
 
-function selectLayer(id){
+function selectLayer(id) {
   activeLayerId = id;
   updateLayersList();
   updatePropertyPanel();
 }
 
-function deleteLayer(){
-  if(!activeLayerId) return;
-  layers = layers.filter(l => l.id !== activeLayerId);
+function deleteLayer() {
+  if (!activeLayerId) return;
+  const page = getCurrentPage();
+  page.layers = page.layers.filter(l => l.id !== activeLayerId);
   activeLayerId = null;
   updateLayersList();
   updatePropertyPanel();
+  updateTimeline();
   redraw();
 }
 
-function updateLayersList(){
-  const container = document.getElementById("layers");
-  container.innerHTML = layers.map(layer => `
+function updateLayersList() {
+  const container = document.getElementById('layersList');
+  const page = getCurrentPage();
+  
+  container.innerHTML = page.layers.map(layer => `
     <div class="layer-item ${layer.id === activeLayerId ? 'active' : ''}" 
          onclick="selectLayer(${layer.id})">
       <span>${layer.name}</span>
-      <span class="layer-badge">group</span>
+      <span class="layer-badge">layer</span>
     </div>
   `).join('');
 }
 
-function updatePropertyPanel(){
-  const panel = document.getElementById("propertyPanel");
-
-  if(!activeLayerId){
-    panel.style.display = "none";
+function updatePropertyPanel() {
+  const panel = document.getElementById('layerProperties');
+  
+  if (!activeLayerId) {
+    panel.style.display = 'none';
     return;
   }
 
-  panel.style.display = "block";
-  const layer = layers.find(l => l.id === activeLayerId);
-  loadGroupProps(layer);
-}
-
-function loadGroupProps(layer){
+  panel.style.display = 'block';
+  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
+  
   const bindings = [
-    ['groupX', 'x', v => Math.round(v) + 'px'],
-    ['groupY', 'y', v => Math.round(v) + 'px'],
-    ['groupScale', 'scale', v => v.toFixed(2)],
-    ['groupRotate', 'rotate', v => Math.round(v) + '°'],
-    ['groupOpacity', 'opacity', v => Math.round(v * 100) + '%'],
-    ['imgPosX', 'imgPosX', v => Math.round(v) + 'px'],
-    ['imgPosY', 'imgPosY', v => Math.round(v) + 'px'],
-    ['imgScale', 'imgScale', v => v.toFixed(2)],
-    ['imgOpacity', 'imgOpacity', v => Math.round(v * 100) + '%'],
-    ['imgBlur', 'imgBlur', v => Math.round(v) + 'px'],
-    ['textX', 'textX', v => Math.round(v) + 'px'],
-    ['textY', 'textY', v => Math.round(v) + 'px'],
-    ['groupFontSize', 'fontSize', v => Math.round(v) + 'px'],
-    ['lineHeight', 'lineHeight', v => v.toFixed(1)],
-    ['textBgOpacity', 'textBgOpacity', v => Math.round(v * 100) + '%'],
-    ['textBgPadding', 'textBgPadding', v => Math.round(v) + 'px'],
-    ['strokeWidth', 'strokeWidth', v => Math.round(v) + 'px'],
-    ['shadowBlur', 'shadowBlur', v => Math.round(v) + 'px'],
-    ['shadowX', 'shadowX', v => Math.round(v) + 'px'],
-    ['shadowY', 'shadowY', v => Math.round(v) + 'px']
+    ['imgX', 'imgX'],
+    ['imgY', 'imgY'],
+    ['imgScale', 'imgScale'],
+    ['imgOpacity', 'imgOpacity'],
+    ['textX', 'textX'],
+    ['textY', 'textY'],
+    ['fontSize', 'fontSize'],
+    ['layerScale', 'scale'],
+    ['layerRotate', 'rotate'],
+    ['layerOpacity', 'opacity']
   ];
 
-  bindings.forEach(([id, prop, format]) => {
+  bindings.forEach(([id, prop]) => {
     const el = document.getElementById(id);
-    if(!el) return;
+    if (!el) return;
     el.value = layer[prop];
-    const valEl = document.getElementById(id + 'Val');
-    if(valEl) valEl.textContent = format(layer[prop]);
     el.oninput = e => {
       layer[prop] = Number(e.target.value);
-      if(valEl) valEl.textContent = format(layer[prop]);
+      updatePropertyValues();
       redraw();
     };
   });
 
   const simpleBindings = [
-    ['groupText', 'text'],
-    ['groupFontFamily', 'fontFamily'],
-    ['groupFontWeight', 'fontWeight'],
-    ['groupTextColor', 'textColor'],
-    ['textAlign', 'textAlign'],
-    ['textBgColor', 'textBgColor'],
-    ['strokeColor', 'strokeColor'],
-    ['shadowColor', 'shadowColor'],
-    ['imgFit', 'imgFit']
+    ['textContent', 'text'],
+    ['fontFamily', 'fontFamily'],
+    ['textColor', 'textColor']
   ];
 
   simpleBindings.forEach(([id, prop]) => {
     const el = document.getElementById(id);
-    if(!el) return;
+    if (!el) return;
     el.value = layer[prop];
     el.oninput = e => {
       layer[prop] = e.target.value;
@@ -801,9 +1104,9 @@ function loadGroupProps(layer){
     };
   });
 
-  document.getElementById('groupImgUpload').onchange = e => {
+  document.getElementById('imageUpload').onchange = e => {
     const file = e.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
@@ -815,115 +1118,219 @@ function loadGroupProps(layer){
     };
     reader.readAsDataURL(file);
   };
+
+  updatePropertyValues();
 }
 
-function loadMusic(){
+function updatePropertyValues() {
+  if (!activeLayerId) return;
+  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
+  if (!layer) return;
+
+  const updates = [
+    ['imgXVal', layer.imgX],
+    ['imgYVal', layer.imgY],
+    ['imgScaleVal', layer.imgScale.toFixed(2)],
+    ['imgOpacityVal', Math.round(layer.imgOpacity * 100) + '%'],
+    ['textXVal', Math.round(layer.textX)],
+    ['textYVal', Math.round(layer.textY)],
+    ['fontSizeVal', Math.round(layer.fontSize)],
+    ['layerScaleVal', layer.scale.toFixed(2)],
+    ['layerRotateVal', Math.round(layer.rotate) + '°'],
+    ['layerOpacityVal', Math.round(layer.opacity * 100) + '%']
+  ];
+
+  updates.forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+}
+
+function addPage() {
+  pages.push({
+    layers: [],
+    duration: 5
+  });
+  updatePagesUI();
+  updateTimeline();
+}
+
+function switchPage(index) {
+  currentPageIndex = index;
+  activeLayerId = null;
+  updatePagesUI();
+  updateLayersList();
+  updatePropertyPanel();
+  updateTimeline();
+  redraw();
+}
+
+function updatePagesUI() {
+  const container = document.getElementById('pagesContainer');
+  const pagesHTML = pages.map((page, i) => `
+    <div class="page-thumb ${i === currentPageIndex ? 'active' : ''}" onclick="switchPage(${i})">
+      <span>Page ${i + 1}</span>
+      <div class="page-duration">${page.duration}s</div>
+    </div>
+  `).join('');
+  
+  container.innerHTML = pagesHTML + '<div class="add-page-btn" onclick="addPage()">+</div>';
+}
+
+function updateTimeline() {
+  const videoTrack = document.getElementById('videoTrack');
+  const audioTrack = document.getElementById('audioTrack');
+  
+  const page = getCurrentPage();
+  videoTrack.innerHTML = page.layers.map(layer => `
+    <div class="track-item">
+      <span>${layer.name}</span>
+      <span>${page.duration}s</span>
+    </div>
+  `).join('');
+
+  if (musicLoaded) {
+    audioTrack.innerHTML = `
+      <div class="track-item audio">
+        <span>🎵 Background Music</span>
+        <span>${page.duration}s</span>
+      </div>
+    `;
+  } else {
+    audioTrack.innerHTML = '<span style="color: #666; font-size: 11px;">No audio</span>';
+  }
+}
+
+function loadMusic() {
   const url = document.getElementById('musicUrl').value.trim();
-  if(!url){
+  if (!url) {
     alert('Please enter a music URL');
     return;
   }
   
   audioPlayer.src = url;
   audioPlayer.load();
+  audioPlayer.style.display = 'block';
   audioPlayer.onloadeddata = () => {
     musicLoaded = true;
-    musicControls.style.display = 'block';
-    alert('Music loaded successfully!');
+    updateTimeline();
+    showToast('Music loaded successfully!');
   };
   audioPlayer.onerror = () => {
-    alert('Failed to load music. Make sure the URL is a direct link to an audio file.');
+    showToast('Failed to load music');
   };
 }
 
-function clearMusic(){
-  audioPlayer.src = '';
-  musicLoaded = false;
-  musicControls.style.display = 'none';
-  document.getElementById('musicUrl').value = '';
-}
-
-function setCanvasSize(w, h){
+function setCanvasSize(w, h) {
   canvas.width = w;
   canvas.height = h;
   redraw();
 }
 
-document.getElementById('bgColor').oninput = redraw;
+function zoomIn() {
+  zoomLevel = Math.min(zoomLevel + 0.1, 3);
+  updateZoom();
+}
 
-function play(){
-  if(isPlaying) return;
+function zoomOut() {
+  zoomLevel = Math.max(zoomLevel - 0.1, 0.1);
+  updateZoom();
+}
+
+function resetZoom() {
+  zoomLevel = 1;
+  updateZoom();
+}
+
+function updateZoom() {
+  canvasWrapper.style.transform = `scale(${zoomLevel})`;
+  document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+}
+
+function play() {
+  if (isPlaying) return;
   isPlaying = true;
-  const fps = Number(document.getElementById('fps').value);
-  const duration = Number(document.getElementById('duration').value);
   
-  if(musicLoaded){
+  const page = getCurrentPage();
+  const fps = 30;
+  
+  if (musicLoaded) {
     audioPlayer.currentTime = 0;
     audioPlayer.play();
   }
   
-  function animate(){
-    if(!isPlaying) return;
+  function animate() {
+    if (!isPlaying) return;
     currentTime += 1 / fps;
-    if(currentTime >= duration){
+    
+    if (currentTime >= page.duration) {
       currentTime = 0;
       isPlaying = false;
-      if(musicLoaded) audioPlayer.pause();
+      if (musicLoaded) audioPlayer.pause();
       return;
     }
-    document.getElementById('timeDisplay').textContent = currentTime.toFixed(1) + 's';
+    
+    const mins = Math.floor(currentTime / 60);
+    const secs = Math.floor(currentTime % 60);
+    const totalMins = Math.floor(page.duration / 60);
+    const totalSecs = Math.floor(page.duration % 60);
+    
+    document.getElementById('timeDisplay').textContent = 
+      `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} / ${totalMins.toString().padStart(2, '0')}:${totalSecs.toString().padStart(2, '0')}`;
+    
     redraw();
     animationId = requestAnimationFrame(animate);
   }
+  
   animate();
 }
 
-function pause(){
+function pause() {
   isPlaying = false;
-  if(animationId) cancelAnimationFrame(animationId);
-  if(musicLoaded) audioPlayer.pause();
+  if (animationId) cancelAnimationFrame(animationId);
+  if (musicLoaded) audioPlayer.pause();
 }
 
-function reset(){
+function reset() {
   pause();
   currentTime = 0;
-  document.getElementById('timeDisplay').textContent = '0.0s';
-  if(musicLoaded) audioPlayer.currentTime = 0;
+  const page = getCurrentPage();
+  document.getElementById('timeDisplay').textContent = `00:00 / ${page.duration.toString().padStart(2, '0')}:00`;
+  if (musicLoaded) audioPlayer.currentTime = 0;
   redraw();
 }
 
-function showStatus(msg){
-  const status = document.getElementById('status');
-  status.innerHTML = `<span class="loader"></span>${msg}`;
-  status.classList.add('show');
+function showToast(message) {
+  const toast = document.getElementById('statusToast');
+  document.getElementById('statusText').textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-function hideStatus(){
-  document.getElementById('status').classList.remove('show');
-}
-
-async function exportVideo(format){
-  showStatus(`Rendering ${format.toUpperCase()} video...`);
+async function exportVideo() {
+  const page = getCurrentPage();
+  const duration = Number(document.getElementById('pageDuration').value) || page.duration;
   
-  const fps = Number(document.getElementById('fps').value);
-  const duration = Number(document.getElementById('duration').value);
+  showToast('Rendering video...');
+  
+  const fps = 30;
   const totalFrames = fps * duration;
 
   try {
     const stream = canvas.captureStream(fps);
+    let finalStream = stream;
     
-    let audioTracks = [];
-    if(musicLoaded){
+    if (musicLoaded) {
       const audioCtx = new AudioContext();
       const dest = audioCtx.createMediaStreamDestination();
       const source = audioCtx.createMediaElementSource(audioPlayer);
       source.connect(dest);
       source.connect(audioCtx.destination);
-      audioTracks = dest.stream.getAudioTracks();
+      
+      const audioTrack = dest.stream.getAudioTracks()[0];
+      const videoTrack = stream.getVideoTracks()[0];
+      finalStream = new MediaStream([videoTrack, audioTrack]);
     }
-    
-    const videoTrack = stream.getVideoTracks()[0];
-    const finalStream = new MediaStream([videoTrack, ...audioTracks]);
     
     const recorder = new MediaRecorder(finalStream, {
       mimeType: 'video/webm;codecs=vp9,opus',
@@ -935,39 +1342,48 @@ async function exportVideo(format){
     
     recorder.start();
     
-    if(musicLoaded){
+    if (musicLoaded) {
       audioPlayer.currentTime = 0;
       audioPlayer.play();
     }
 
-    for(let i = 0; i < totalFrames; i++){
+    for (let i = 0; i < totalFrames; i++) {
       currentTime = i / fps;
-      document.getElementById('timeDisplay').textContent = currentTime.toFixed(1) + 's';
       redraw();
       await new Promise(resolve => setTimeout(resolve, 1000 / fps));
     }
 
-    if(musicLoaded) audioPlayer.pause();
+    if (musicLoaded) audioPlayer.pause();
     recorder.stop();
     
     recorder.onstop = () => {
-      const blob = new Blob(chunks, {type: 'video/webm'});
+      const blob = new Blob(chunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `video-${Date.now()}.${format}`;
+      a.download = `video-${Date.now()}.webm`;
       a.click();
       URL.revokeObjectURL(url);
       
       reset();
-      hideStatus();
-      alert('Video exported successfully with ' + (musicLoaded ? 'audio!' : 'no audio!'));
+      showToast('Video exported successfully!');
     };
-  } catch(error){
-    hideStatus();
-    alert('Export failed: ' + error.message);
+  } catch (error) {
+    showToast('Export failed: ' + error.message);
   }
 }
+
+document.getElementById('bgColor').oninput = redraw;
+document.getElementById('canvasSizeSelect').onchange = e => {
+  const [w, h] = e.target.value.split(',').map(Number);
+  setCanvasSize(w, h);
+};
+
+document.getElementById('pageDuration').oninput = e => {
+  getCurrentPage().duration = Number(e.target.value);
+  updatePagesUI();
+  updateTimeline();
+};
 </script>
 
 </body>
