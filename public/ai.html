@@ -128,6 +128,11 @@ input[type="file"]{
   padding:6px;
   cursor:pointer;
 }
+input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  cursor:pointer;
+}
 button{
   width:100%;
   padding:10px 16px;
@@ -224,6 +229,13 @@ button{
   margin-right:8px;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+.checkbox-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:8px 0;
+}
+.checkbox-row label{margin:0}
 </style>
 </head>
 <body>
@@ -232,8 +244,9 @@ button{
   <!-- LEFT PANEL: LAYERS -->
   <div class="left-panel">
     <h3>🎬 Layers</h3>
-    <button class="secondary" onclick="addLayer('text')">+ Add Text</button>
-    <button class="secondary" onclick="addLayer('image')">+ Add Image</button>
+    <button class="secondary" onclick="addLayer('group')">+ Add Image+Text Group</button>
+    <button class="secondary" onclick="addLayer('text')">+ Add Text Only</button>
+    <button class="secondary" onclick="addLayer('image')">+ Add Image Only</button>
     <div id="layers" style="margin-top:12px"></div>
   </div>
 
@@ -271,6 +284,69 @@ button{
     </div>
 
     <div id="propertyPanel" style="display:none">
+      <!-- GROUP PROPERTIES -->
+      <div id="groupProps" style="display:none">
+        <div class="section">
+          <h3>📸 Image</h3>
+          <label>Upload Image</label>
+          <input type="file" id="groupImgUpload" accept="image/*">
+        </div>
+        <div class="section">
+          <label>Image Width <span class="value-display" id="groupImgWidthVal">400px</span></label>
+          <input type="range" id="groupImgWidth" min="100" max="1000" value="400">
+          <label>Image Height <span class="value-display" id="groupImgHeightVal">400px</span></label>
+          <input type="range" id="groupImgHeight" min="100" max="1000" value="400">
+          <label>Corner Radius <span class="value-display" id="groupImgRadiusVal">20px</span></label>
+          <input type="range" id="groupImgRadius" min="0" max="100" value="20">
+        </div>
+        <div class="section">
+          <h3>💬 Caption Text</h3>
+          <label>Caption</label>
+          <textarea id="groupCaption" placeholder="Enter caption...">Your Caption Here</textarea>
+          <label>Caption Position</label>
+          <select id="groupCaptionPos">
+            <option value="top">Above Image</option>
+            <option value="bottom">Below Image</option>
+          </select>
+          <label>Gap <span class="value-display" id="groupGapVal">20px</span></label>
+          <input type="range" id="groupGap" min="0" max="100" value="20">
+        </div>
+        <div class="section">
+          <label>Font Family</label>
+          <select id="groupFontFamily">
+            <option value="Arial">Arial</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Impact">Impact</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Verdana">Verdana</option>
+            <option value="system-ui">System UI</option>
+          </select>
+          <label>Font Size <span class="value-display" id="groupFontSizeVal">32px</span></label>
+          <input type="range" id="groupFontSize" min="12" max="120" value="32">
+          <label>Font Weight</label>
+          <select id="groupFontWeight">
+            <option value="400">Normal</option>
+            <option value="600">Semi-Bold</option>
+            <option value="700" selected>Bold</option>
+            <option value="900">Black</option>
+          </select>
+          <label>Text Color</label>
+          <input type="color" id="groupTextColor" value="#ffffff">
+        </div>
+        <div class="section">
+          <h3>🎯 Group Position</h3>
+          <label>X Position <span class="value-display" id="groupXVal">0</span></label>
+          <input type="range" id="groupX" min="-500" max="500" value="0">
+          <label>Y Position <span class="value-display" id="groupYVal">0</span></label>
+          <input type="range" id="groupY" min="-500" max="500" value="0">
+          <label>Rotation <span class="value-display" id="groupRotateVal">0°</span></label>
+          <input type="range" id="groupRotate" min="-180" max="180" value="0">
+          <label>Opacity <span class="value-display" id="groupOpacityVal">100%</span></label>
+          <input type="range" id="groupOpacity" min="0" max="1" step="0.01" value="1">
+        </div>
+        <button class="danger" onclick="deleteLayer()">🗑 Delete Layer</button>
+      </div>
+
       <!-- IMAGE PROPERTIES -->
       <div id="imageProps" style="display:none">
         <div class="section">
@@ -324,26 +400,24 @@ button{
             <option value="Courier New">Courier New</option>
             <option value="Verdana">Verdana</option>
             <option value="Impact">Impact</option>
-            <option value="Comic Sans MS">Comic Sans MS</option>
-            <option value="Trebuchet MS">Trebuchet MS</option>
             <option value="system-ui">System UI</option>
           </select>
           <label>Font Size <span class="value-display" id="fontSizeVal">48px</span></label>
           <input type="range" id="fontSize" min="12" max="200" value="48">
           <label>Font Weight</label>
           <select id="fontWeight">
-            <option value="300">Light (300)</option>
-            <option value="400">Normal (400)</option>
-            <option value="600">Semi-Bold (600)</option>
-            <option value="700">Bold (700)</option>
-            <option value="900">Black (900)</option>
+            <option value="300">Light</option>
+            <option value="400">Normal</option>
+            <option value="600">Semi-Bold</option>
+            <option value="700">Bold</option>
+            <option value="900">Black</option>
           </select>
         </div>
         <div class="section">
           <label>Text Color</label>
           <input type="color" id="textColor" value="#ffffff">
           <label>Background Color</label>
-          <input type="color" id="textBgColor" value="#00000000">
+          <input type="color" id="textBgColor" value="#000000">
           <label>Background Opacity <span class="value-display" id="textBgOpacityVal">0%</span></label>
           <input type="range" id="textBgOpacity" min="0" max="1" step="0.01" value="0">
         </div>
@@ -356,26 +430,10 @@ button{
           </select>
           <label>Rotation <span class="value-display" id="textRotateVal">0°</span></label>
           <input type="range" id="textRotate" min="-180" max="180" value="0">
-          <label>Letter Spacing <span class="value-display" id="letterSpacingVal">0px</span></label>
-          <input type="range" id="letterSpacing" min="-10" max="30" value="0">
-          <label>Line Height <span class="value-display" id="lineHeightVal">1.2</span></label>
-          <input type="range" id="lineHeight" min="0.8" max="2.5" step="0.1" value="1.2">
-        </div>
-        <div class="section">
           <label>Stroke Width <span class="value-display" id="strokeWidthVal">0px</span></label>
           <input type="range" id="strokeWidth" min="0" max="10" value="0">
           <label>Stroke Color</label>
           <input type="color" id="strokeColor" value="#000000">
-        </div>
-        <div class="section">
-          <label>Shadow Blur <span class="value-display" id="shadowBlurVal">0px</span></label>
-          <input type="range" id="shadowBlur" min="0" max="30" value="0">
-          <label>Shadow X <span class="value-display" id="shadowXVal">0px</span></label>
-          <input type="range" id="shadowX" min="-20" max="20" value="0">
-          <label>Shadow Y <span class="value-display" id="shadowYVal">0px</span></label>
-          <input type="range" id="shadowY" min="-20" max="20" value="0">
-          <label>Shadow Color</label>
-          <input type="color" id="shadowColor" value="#000000">
         </div>
         <button class="danger" onclick="deleteLayer()">🗑 Delete Layer</button>
       </div>
@@ -393,7 +451,6 @@ button{
       </select>
       <div class="export-options">
         <button class="primary" onclick="exportVideo('webm')">Export as WebM</button>
-        <button class="primary" onclick="exportVideo('mp4')">Export as MP4</button>
       </div>
     </div>
   </div>
@@ -414,7 +471,6 @@ let isPlaying = false;
 let currentTime = 0;
 let animationId = null;
 
-// Initialize
 redraw();
 updateLayersList();
 
@@ -428,8 +484,90 @@ function redraw(){
       drawImage(layer);
     } else if(layer.type === "text"){
       drawText(layer);
+    } else if(layer.type === "group"){
+      drawGroup(layer);
     }
   });
+}
+
+function drawGroup(layer){
+  ctx.save();
+  ctx.globalAlpha = layer.opacity;
+  ctx.translate(canvas.width/2 + layer.x, canvas.height/2 + layer.y);
+  ctx.rotate(layer.rotate * Math.PI / 180);
+
+  const imgW = layer.imgWidth;
+  const imgH = layer.imgHeight;
+  const gap = layer.gap;
+  
+  // Measure text
+  ctx.font = `${layer.fontWeight} ${layer.fontSize}px ${layer.fontFamily}`;
+  const textMetrics = ctx.measureText(layer.caption);
+  const textHeight = layer.fontSize;
+
+  // Calculate total height
+  const totalH = imgH + gap + textHeight;
+  
+  // Position based on caption position
+  let imgY, textY;
+  if(layer.captionPos === "top"){
+    textY = -totalH/2;
+    imgY = textY + textHeight + gap;
+  } else {
+    imgY = -totalH/2;
+    textY = imgY + imgH + gap;
+  }
+
+  // Draw image with rounded corners
+  if(layer.image){
+    ctx.save();
+    
+    // Create rounded rectangle path
+    const x = -imgW/2;
+    const y = imgY;
+    const r = layer.imgRadius;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + imgW - r, y);
+    ctx.quadraticCurveTo(x + imgW, y, x + imgW, y + r);
+    ctx.lineTo(x + imgW, y + imgH - r);
+    ctx.quadraticCurveTo(x + imgW, y + imgH, x + imgW - r, y + imgH);
+    ctx.lineTo(x + r, y + imgH);
+    ctx.quadraticCurveTo(x, y + imgH, x, y + imgH - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.clip();
+    
+    // Draw image to fit
+    const imgRatio = layer.image.width / layer.image.height;
+    const boxRatio = imgW / imgH;
+    let drawW, drawH, drawX, drawY;
+    
+    if(imgRatio > boxRatio){
+      drawH = imgH;
+      drawW = drawH * imgRatio;
+      drawX = x - (drawW - imgW) / 2;
+      drawY = y;
+    } else {
+      drawW = imgW;
+      drawH = drawW / imgRatio;
+      drawX = x;
+      drawY = y - (drawH - imgH) / 2;
+    }
+    
+    ctx.drawImage(layer.image, drawX, drawY, drawW, drawH);
+    ctx.restore();
+  }
+
+  // Draw caption
+  ctx.fillStyle = layer.textColor;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText(layer.caption, 0, textY);
+
+  ctx.restore();
 }
 
 function drawImage(layer){
@@ -473,7 +611,7 @@ function drawText(layer){
   ctx.textBaseline = "middle";
 
   const lines = layer.text.split('\n');
-  const lineHeightPx = layer.fontSize * layer.lineHeight;
+  const lineHeightPx = layer.fontSize * 1.2;
 
   lines.forEach((line, i) => {
     const yOffset = (i - (lines.length-1)/2) * lineHeightPx;
@@ -491,14 +629,6 @@ function drawText(layer){
       );
     }
 
-    // Shadow
-    if(layer.shadowBlur > 0){
-      ctx.shadowBlur = layer.shadowBlur;
-      ctx.shadowOffsetX = layer.shadowX;
-      ctx.shadowOffsetY = layer.shadowY;
-      ctx.shadowColor = layer.shadowColor;
-    }
-
     // Stroke
     if(layer.strokeWidth > 0){
       ctx.strokeStyle = layer.strokeColor;
@@ -509,8 +639,6 @@ function drawText(layer){
     // Text
     ctx.fillStyle = layer.textColor;
     ctx.fillText(line, 0, yOffset);
-    
-    ctx.shadowBlur = 0;
   });
 
   ctx.restore();
@@ -524,7 +652,23 @@ function addLayer(type){
     name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${layers.length + 1}`
   };
 
-  if(type === "image"){
+  if(type === "group"){
+    layer.image = null;
+    layer.caption = "Your Caption Here";
+    layer.x = 0;
+    layer.y = 0;
+    layer.rotate = 0;
+    layer.opacity = 1;
+    layer.imgWidth = 400;
+    layer.imgHeight = 400;
+    layer.imgRadius = 20;
+    layer.gap = 20;
+    layer.captionPos = "top";
+    layer.fontSize = 32;
+    layer.fontFamily = "Arial";
+    layer.fontWeight = "700";
+    layer.textColor = "#ffffff";
+  } else if(type === "image"){
     layer.x = 0;
     layer.y = 0;
     layer.scale = 1;
@@ -544,14 +688,8 @@ function addLayer(type){
     layer.bgOpacity = 0;
     layer.textAlign = "center";
     layer.rotate = 0;
-    layer.letterSpacing = 0;
-    layer.lineHeight = 1.2;
     layer.strokeWidth = 0;
     layer.strokeColor = "#000000";
-    layer.shadowBlur = 0;
-    layer.shadowX = 0;
-    layer.shadowY = 0;
-    layer.shadowColor = "#000000";
   }
 
   layers.push(layer);
@@ -588,6 +726,7 @@ function updateLayersList(){
 
 function updatePropertyPanel(){
   const panel = document.getElementById("propertyPanel");
+  const groupProps = document.getElementById("groupProps");
   const imageProps = document.getElementById("imageProps");
   const textProps = document.getElementById("textProps");
 
@@ -599,15 +738,77 @@ function updatePropertyPanel(){
   panel.style.display = "block";
   const layer = layers.find(l => l.id === activeLayerId);
 
-  if(layer.type === "image"){
+  groupProps.style.display = "none";
+  imageProps.style.display = "none";
+  textProps.style.display = "none";
+
+  if(layer.type === "group"){
+    groupProps.style.display = "block";
+    loadGroupProps(layer);
+  } else if(layer.type === "image"){
     imageProps.style.display = "block";
-    textProps.style.display = "none";
     loadImageProps(layer);
   } else if(layer.type === "text"){
-    imageProps.style.display = "none";
     textProps.style.display = "block";
     loadTextProps(layer);
   }
+}
+
+function loadGroupProps(layer){
+  const bindings = [
+    ['groupX', 'x', v => v + 'px'],
+    ['groupY', 'y', v => v + 'px'],
+    ['groupRotate', 'rotate', v => v + '°'],
+    ['groupOpacity', 'opacity', v => Math.round(v*100) + '%'],
+    ['groupImgWidth', 'imgWidth', v => v + 'px'],
+    ['groupImgHeight', 'imgHeight', v => v + 'px'],
+    ['groupImgRadius', 'imgRadius', v => v + 'px'],
+    ['groupGap', 'gap', v => v + 'px'],
+    ['groupFontSize', 'fontSize', v => v + 'px']
+  ];
+
+  bindings.forEach(([id, prop, format]) => {
+    const el = document.getElementById(id);
+    el.value = layer[prop];
+    document.getElementById(id+'Val').textContent = format(layer[prop]);
+    el.oninput = e => {
+      layer[prop] = Number(e.target.value);
+      document.getElementById(id+'Val').textContent = format(layer[prop]);
+      redraw();
+    };
+  });
+
+  const simpleBindings = [
+    ['groupCaption', 'caption'],
+    ['groupCaptionPos', 'captionPos'],
+    ['groupFontFamily', 'fontFamily'],
+    ['groupFontWeight', 'fontWeight'],
+    ['groupTextColor', 'textColor']
+  ];
+
+  simpleBindings.forEach(([id, prop]) => {
+    const el = document.getElementById(id);
+    el.value = layer[prop];
+    el.oninput = e => {
+      layer[prop] = e.target.value;
+      redraw();
+    };
+  });
+
+  document.getElementById('groupImgUpload').onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        layer.image = img;
+        redraw();
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  };
 }
 
 function loadImageProps(layer){
@@ -658,12 +859,7 @@ function loadTextProps(layer){
     ['textY', 'y', v => v + 'px'],
     ['fontSize', 'fontSize', v => v + 'px'],
     ['textRotate', 'rotate', v => v + '°'],
-    ['letterSpacing', 'letterSpacing', v => v + 'px'],
-    ['lineHeight', 'lineHeight', v => v.toFixed(1)],
     ['strokeWidth', 'strokeWidth', v => v + 'px'],
-    ['shadowBlur', 'shadowBlur', v => v + 'px'],
-    ['shadowX', 'shadowX', v => v + 'px'],
-    ['shadowY', 'shadowY', v => v + 'px'],
     ['textBgOpacity', 'bgOpacity', v => Math.round(v*100) + '%']
   ];
 
@@ -689,8 +885,7 @@ function loadTextProps(layer){
     ['textColor', 'textColor'],
     ['textBgColor', 'bgColor'],
     ['textAlign', 'textAlign'],
-    ['strokeColor', 'strokeColor'],
-    ['shadowColor', 'shadowColor']
+    ['strokeColor', 'strokeColor']
   ];
 
   simpleBindings.forEach(([id, prop]) => {
@@ -761,11 +956,6 @@ async function exportVideo(format){
   const duration = Number(document.getElementById('duration').value);
   const totalFrames = fps * duration;
 
-  if(format === 'mp4'){
-    alert('MP4 export requires server-side processing. This will export as WebM instead.\n\nTo get MP4, you can:\n1. Use online converters (CloudConvert, FreeConvert)\n2. Use FFmpeg locally\n3. Use video editing software');
-    format = 'webm';
-  }
-
   try {
     const stream = canvas.captureStream(fps);
     const recorder = new MediaRecorder(stream, {
@@ -799,3 +989,13 @@ async function exportVideo(format){
       reset();
       hideStatus();
       alert('Video exported successfully!');
+    };
+  } catch(error){
+    hideStatus();
+    alert('Export failed: ' + error.message);
+  }
+}
+</script>
+
+</body>
+</html>
