@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>AI Video Preview</title>
+<style>
+body{
+  background:#020617;
+  color:#e5e7eb;
+  font-family:system-ui;
+  display:flex;
+  justify-content:center;
+  padding:20px;
+}
+.app{
+  width:420px;
+}
+.frame{
+  width:100%;
+  aspect-ratio:9/16;
+  background:#000;
+  border-radius:14px;
+  overflow:hidden;
+}
+.controls{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+}
+button{
+  flex:1;
+  padding:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="frame" id="frame"></div>
+  <div class="controls">
+    <button onclick="prev()">◀ Prev</button>
+    <button onclick="next()">Next ▶</button>
+  </div>
+</div>
+
+<script>
+let frames = [];
+let index = 0;
+
+async function load() {
+  const res = await fetch("/api/ai-video", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(YOUR_JSON_HERE)
+  });
+  const data = await res.json();
+  frames = data.frames;
+  show();
+}
+
+function show(){
+  document.getElementById("frame").innerHTML = frames[index].svg;
+}
+
+function next(){
+  index = (index+1)%frames.length;
+  show();
+}
+function prev(){
+  index = (index-1+frames.length)%frames.length;
+  show();
+}
+
+load();
+</script>
+
+</body>
+</html>
