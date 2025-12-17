@@ -14,7 +14,7 @@ body{
 }
 .container{
   display:grid;
-  grid-template-columns:280px 1fr 320px;
+  grid-template-columns:280px 1fr 340px;
   height:100vh;
   gap:0;
 }
@@ -24,7 +24,15 @@ body{
   overflow-y:auto;
   padding:16px;
 }
-.right-panel{border-right:none;border-left:1px solid #1e1e2e}
+.right-panel{
+  border-right:none;
+  border-left:1px solid #1e1e2e;
+  max-height:100vh;
+  overflow-y:scroll;
+}
+.right-panel::-webkit-scrollbar{width:8px}
+.right-panel::-webkit-scrollbar-track{background:#1a1a24}
+.right-panel::-webkit-scrollbar-thumb{background:#4f46e5;border-radius:4px}
 .center{
   display:flex;
   flex-direction:column;
@@ -37,15 +45,19 @@ body{
   justify-content:center;
   padding:20px;
   position:relative;
+  cursor:move;
 }
+.canvas-container.dragging{cursor:grabbing}
 canvas{
   max-width:100%;
   max-height:100%;
   background:#000;
   box-shadow:0 10px 40px rgba(0,0,0,0.5);
+  cursor:grab;
 }
+canvas:active{cursor:grabbing}
 .timeline{
-  height:120px;
+  height:140px;
   background:#16161d;
   border-top:1px solid #1e1e2e;
   padding:10px;
@@ -71,7 +83,7 @@ label{
   margin:8px 0 4px;
   font-weight:500;
 }
-input[type="text"],input[type="number"],select,textarea{
+input[type="text"],input[type="url"],input[type="number"],select,textarea{
   width:100%;
   padding:8px 10px;
   background:#1a1a24;
@@ -87,7 +99,7 @@ input:focus,select:focus,textarea:focus{
 }
 textarea{
   resize:vertical;
-  min-height:80px;
+  min-height:60px;
   font-family:inherit;
 }
 input[type="range"]{
@@ -204,13 +216,14 @@ button{
 .status{
   position:fixed;
   bottom:20px;
-  right:340px;
+  right:360px;
   background:#1a1a24;
   padding:12px 20px;
   border-radius:8px;
   border:1px solid #2a2a3a;
   display:none;
   box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  z-index:1000;
 }
 .status.show{display:block}
 .loader{
@@ -224,6 +237,22 @@ button{
   margin-right:8px;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+.help-text{
+  font-size:11px;
+  color:#6b7280;
+  margin-top:4px;
+  font-style:italic;
+}
+.music-controls{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+.music-controls button{
+  width:auto;
+  padding:8px 12px;
+  font-size:12px;
+}
 </style>
 </head>
 <body>
@@ -238,24 +267,27 @@ button{
 
   <!-- CENTER: CANVAS -->
   <div class="center">
-    <div class="canvas-container">
+    <div class="canvas-container" id="canvasContainer">
       <canvas id="canvas"></canvas>
     </div>
     <div class="timeline">
-      <div style="color:#9ca3af;font-size:12px;margin-bottom:8px">Timeline (0-10s)</div>
-      <div style="display:flex;gap:8px">
+      <div style="color:#9ca3af;font-size:12px;margin-bottom:8px">Timeline • Drag on canvas to move elements</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
         <button class="secondary" style="width:auto;padding:8px 16px" onclick="play()">▶ Play</button>
         <button class="secondary" style="width:auto;padding:8px 16px" onclick="pause()">⏸ Pause</button>
         <button class="secondary" style="width:auto;padding:8px 16px" onclick="reset()">⏮ Reset</button>
         <div style="flex:1"></div>
         <span id="timeDisplay" style="color:#9ca3af;font-size:13px;padding:8px">0.0s</span>
       </div>
+      <div id="musicControls" style="display:none">
+        <audio id="audioPlayer" style="width:100%;height:32px"></audio>
+      </div>
     </div>
   </div>
 
   <!-- RIGHT PANEL: PROPERTIES -->
   <div class="right-panel">
-    <h3>⚙️ Properties</h3>
+    <h3>⚙️ Canvas Settings</h3>
     
     <div class="section">
       <label>Canvas Size</label>
@@ -269,6 +301,17 @@ button{
       <input type="color" id="bgColor" value="#000000">
     </div>
 
+    <div class="section">
+      <h3>🎵 Background Music</h3>
+      <label>Music URL (MP3/Audio)</label>
+      <input type="url" id="musicUrl" placeholder="https://example.com/music.mp3">
+      <p class="help-text">Paste direct link to audio file</p>
+      <div class="music-controls">
+        <button class="secondary" onclick="loadMusic()">Load Music</button>
+        <button class="secondary" onclick="clearMusic()">Clear</button>
+      </div>
+    </div>
+
     <div id="propertyPanel" style="display:none">
       <!-- GROUP PROPERTIES -->
       <div id="groupProps">
@@ -276,6 +319,15 @@ button{
           <h3>📸 Background Image</h3>
           <label>Upload Background Image</label>
           <input type="file" id="groupImgUpload" accept="image/*">
+          <p class="help-text">Or drag image on canvas to reposition</p>
+          
+          <label>Image Position X <span class="value-display" id="imgPosXVal">0</span></label>
+          <input type="range" id="imgPosX" min="-500" max="500" value="0">
+          <label>Image Position Y <span class="value-display" id="imgPosYVal">0</span></label>
+          <input type="range" id="imgPosY" min="-500" max="500" value="0">
+          <label>Image Scale <span class="value-display" id="imgScaleVal">1.0</span></label>
+          <input type="range" id="imgScale" min="0.5" max="3" step="0.01" value="1">
+          
           <label>Image Opacity <span class="value-display" id="imgOpacityVal">100%</span></label>
           <input type="range" id="imgOpacity" min="0" max="1" step="0.01" value="1">
           <label>Image Blur <span class="value-display" id="imgBlurVal">0px</span></label>
@@ -390,8 +442,9 @@ button{
         <option value="60">60 FPS</option>
       </select>
       <div class="export-options">
-        <button class="primary" onclick="exportVideo('webm')">Export as WebM</button>
+        <button class="primary" onclick="exportVideo('webm')">📹 Export Video (WebM)</button>
       </div>
+      <p class="help-text">Video will include audio if music is loaded</p>
     </div>
   </div>
 </div>
@@ -401,6 +454,9 @@ button{
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const canvasContainer = document.getElementById("canvasContainer");
+const audioPlayer = document.getElementById("audioPlayer");
+const musicControls = document.getElementById("musicControls");
 
 canvas.width = 1080;
 canvas.height = 1920;
@@ -410,9 +466,70 @@ let activeLayerId = null;
 let isPlaying = false;
 let currentTime = 0;
 let animationId = null;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragType = null;
+let musicLoaded = false;
 
 redraw();
 updateLayersList();
+
+// Canvas drag functionality
+canvas.addEventListener('mousedown', e => {
+  if(!activeLayerId) return;
+  const layer = layers.find(l => l.id === activeLayerId);
+  if(!layer) return;
+  
+  isDragging = true;
+  const rect = canvas.getBoundingClientRect();
+  dragStartX = e.clientX - rect.left;
+  dragStartY = e.clientY - rect.top;
+  
+  // Determine if dragging text or image
+  const canvasX = (dragStartX / rect.width) * canvas.width;
+  const canvasY = (dragStartY / rect.height) * canvas.height;
+  dragType = 'group';
+  
+  canvas.style.cursor = 'grabbing';
+});
+
+canvas.addEventListener('mousemove', e => {
+  if(!isDragging || !activeLayerId) return;
+  
+  const layer = layers.find(l => l.id === activeLayerId);
+  if(!layer) return;
+  
+  const rect = canvas.getBoundingClientRect();
+  const currentX = e.clientX - rect.left;
+  const currentY = e.clientY - rect.top;
+  
+  const deltaX = ((currentX - dragStartX) / rect.width) * canvas.width;
+  const deltaY = ((currentY - dragStartY) / rect.height) * canvas.height;
+  
+  if(dragType === 'group'){
+    layer.x += deltaX;
+    layer.y += deltaY;
+    document.getElementById('groupX').value = layer.x;
+    document.getElementById('groupY').value = layer.y;
+    document.getElementById('groupXVal').textContent = Math.round(layer.x) + 'px';
+    document.getElementById('groupYVal').textContent = Math.round(layer.y) + 'px';
+  }
+  
+  dragStartX = currentX;
+  dragStartY = currentY;
+  redraw();
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+  canvas.style.cursor = 'grab';
+});
+
+canvas.addEventListener('mouseleave', () => {
+  isDragging = false;
+  canvas.style.cursor = 'grab';
+});
 
 function redraw(){
   const bgColor = document.getElementById("bgColor").value;
@@ -441,6 +558,9 @@ function drawGroup(layer){
     if(layer.imgBlur > 0){
       ctx.filter = `blur(${layer.imgBlur}px)`;
     }
+
+    ctx.translate(layer.imgPosX, layer.imgPosY);
+    ctx.scale(layer.imgScale, layer.imgScale);
 
     const ratio = layer.image.width / layer.image.height;
     const canvasRatio = canvas.width / canvas.height;
@@ -482,7 +602,6 @@ function drawGroup(layer){
 
   const lines = layer.text.split('\n');
   const lineHeightPx = layer.fontSize * layer.lineHeight;
-  const totalTextHeight = lines.length * lineHeightPx;
 
   lines.forEach((line, i) => {
     const yOffset = layer.textY + (i - (lines.length - 1) / 2) * lineHeightPx;
@@ -531,7 +650,6 @@ function drawGroup(layer){
     ctx.fillStyle = layer.textColor;
     ctx.fillText(line, layer.textX, yOffset);
     
-    // Reset shadow
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
@@ -555,6 +673,9 @@ function addLayer(type){
   layer.scale = 1;
   layer.rotate = 0;
   layer.opacity = 1;
+  layer.imgPosX = 0;
+  layer.imgPosY = 0;
+  layer.imgScale = 1;
   layer.imgOpacity = 1;
   layer.imgBlur = 0;
   layer.imgFit = "cover";
@@ -623,23 +744,26 @@ function updatePropertyPanel(){
 
 function loadGroupProps(layer){
   const bindings = [
-    ['groupX', 'x', v => v + 'px'],
-    ['groupY', 'y', v => v + 'px'],
+    ['groupX', 'x', v => Math.round(v) + 'px'],
+    ['groupY', 'y', v => Math.round(v) + 'px'],
     ['groupScale', 'scale', v => v.toFixed(2)],
-    ['groupRotate', 'rotate', v => v + '°'],
+    ['groupRotate', 'rotate', v => Math.round(v) + '°'],
     ['groupOpacity', 'opacity', v => Math.round(v * 100) + '%'],
+    ['imgPosX', 'imgPosX', v => Math.round(v) + 'px'],
+    ['imgPosY', 'imgPosY', v => Math.round(v) + 'px'],
+    ['imgScale', 'imgScale', v => v.toFixed(2)],
     ['imgOpacity', 'imgOpacity', v => Math.round(v * 100) + '%'],
-    ['imgBlur', 'imgBlur', v => v + 'px'],
-    ['textX', 'textX', v => v + 'px'],
-    ['textY', 'textY', v => v + 'px'],
-    ['groupFontSize', 'fontSize', v => v + 'px'],
+    ['imgBlur', 'imgBlur', v => Math.round(v) + 'px'],
+    ['textX', 'textX', v => Math.round(v) + 'px'],
+    ['textY', 'textY', v => Math.round(v) + 'px'],
+    ['groupFontSize', 'fontSize', v => Math.round(v) + 'px'],
     ['lineHeight', 'lineHeight', v => v.toFixed(1)],
     ['textBgOpacity', 'textBgOpacity', v => Math.round(v * 100) + '%'],
-    ['textBgPadding', 'textBgPadding', v => v + 'px'],
-    ['strokeWidth', 'strokeWidth', v => v + 'px'],
-    ['shadowBlur', 'shadowBlur', v => v + 'px'],
-    ['shadowX', 'shadowX', v => v + 'px'],
-    ['shadowY', 'shadowY', v => v + 'px']
+    ['textBgPadding', 'textBgPadding', v => Math.round(v) + 'px'],
+    ['strokeWidth', 'strokeWidth', v => Math.round(v) + 'px'],
+    ['shadowBlur', 'shadowBlur', v => Math.round(v) + 'px'],
+    ['shadowX', 'shadowX', v => Math.round(v) + 'px'],
+    ['shadowY', 'shadowY', v => Math.round(v) + 'px']
   ];
 
   bindings.forEach(([id, prop, format]) => {
@@ -693,6 +817,32 @@ function loadGroupProps(layer){
   };
 }
 
+function loadMusic(){
+  const url = document.getElementById('musicUrl').value.trim();
+  if(!url){
+    alert('Please enter a music URL');
+    return;
+  }
+  
+  audioPlayer.src = url;
+  audioPlayer.load();
+  audioPlayer.onloadeddata = () => {
+    musicLoaded = true;
+    musicControls.style.display = 'block';
+    alert('Music loaded successfully!');
+  };
+  audioPlayer.onerror = () => {
+    alert('Failed to load music. Make sure the URL is a direct link to an audio file.');
+  };
+}
+
+function clearMusic(){
+  audioPlayer.src = '';
+  musicLoaded = false;
+  musicControls.style.display = 'none';
+  document.getElementById('musicUrl').value = '';
+}
+
 function setCanvasSize(w, h){
   canvas.width = w;
   canvas.height = h;
@@ -707,12 +857,18 @@ function play(){
   const fps = Number(document.getElementById('fps').value);
   const duration = Number(document.getElementById('duration').value);
   
+  if(musicLoaded){
+    audioPlayer.currentTime = 0;
+    audioPlayer.play();
+  }
+  
   function animate(){
     if(!isPlaying) return;
     currentTime += 1 / fps;
     if(currentTime >= duration){
       currentTime = 0;
       isPlaying = false;
+      if(musicLoaded) audioPlayer.pause();
       return;
     }
     document.getElementById('timeDisplay').textContent = currentTime.toFixed(1) + 's';
@@ -725,12 +881,14 @@ function play(){
 function pause(){
   isPlaying = false;
   if(animationId) cancelAnimationFrame(animationId);
+  if(musicLoaded) audioPlayer.pause();
 }
 
 function reset(){
   pause();
   currentTime = 0;
   document.getElementById('timeDisplay').textContent = '0.0s';
+  if(musicLoaded) audioPlayer.currentTime = 0;
   redraw();
 }
 
@@ -753,8 +911,22 @@ async function exportVideo(format){
 
   try {
     const stream = canvas.captureStream(fps);
-    const recorder = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp9',
+    
+    let audioTracks = [];
+    if(musicLoaded){
+      const audioCtx = new AudioContext();
+      const dest = audioCtx.createMediaStreamDestination();
+      const source = audioCtx.createMediaElementSource(audioPlayer);
+      source.connect(dest);
+      source.connect(audioCtx.destination);
+      audioTracks = dest.stream.getAudioTracks();
+    }
+    
+    const videoTrack = stream.getVideoTracks()[0];
+    const finalStream = new MediaStream([videoTrack, ...audioTracks]);
+    
+    const recorder = new MediaRecorder(finalStream, {
+      mimeType: 'video/webm;codecs=vp9,opus',
       videoBitsPerSecond: 5000000
     });
     
@@ -762,6 +934,11 @@ async function exportVideo(format){
     recorder.ondataavailable = e => chunks.push(e.data);
     
     recorder.start();
+    
+    if(musicLoaded){
+      audioPlayer.currentTime = 0;
+      audioPlayer.play();
+    }
 
     for(let i = 0; i < totalFrames; i++){
       currentTime = i / fps;
@@ -770,6 +947,7 @@ async function exportVideo(format){
       await new Promise(resolve => setTimeout(resolve, 1000 / fps));
     }
 
+    if(musicLoaded) audioPlayer.pause();
     recorder.stop();
     
     recorder.onstop = () => {
@@ -783,7 +961,7 @@ async function exportVideo(format){
       
       reset();
       hideStatus();
-      alert('Video exported successfully!');
+      alert('Video exported successfully with ' + (musicLoaded ? 'audio!' : 'no audio!'));
     };
   } catch(error){
     hideStatus();
