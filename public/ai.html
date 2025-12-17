@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Video Page Builder</title>
+<title>AI Video Export</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 body{
   background:#020617;
@@ -12,143 +13,108 @@ body{
   padding:20px;
 }
 .app{
-  max-width:900px;
+  max-width:420px;
   margin:auto;
 }
-.page{
-  border:1px solid #1e293b;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:16px;
-}
-.page h3{
-  margin:0 0 10px;
-}
-input, textarea{
+canvas{
   width:100%;
-  padding:10px;
-  margin:6px 0;
-  background:#020617;
-  border:1px solid #334155;
-  color:#e5e7eb;
-  border-radius:8px;
+  aspect-ratio:9/16;
+  background:#000;
+  border-radius:14px;
 }
 button{
-  padding:10px 14px;
-  font-weight:700;
-  cursor:pointer;
-  border-radius:8px;
-}
-.add{
-  background:#16a34a;
-  color:#fff;
-}
-.remove{
-  background:#dc2626;
-  color:#fff;
-}
-.preview{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  font-weight:800;
   background:#2563eb;
   color:#fff;
-}
-.row{
-  display:flex;
-  gap:10px;
+  border-radius:10px;
+  cursor:pointer;
 }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <h1>AI Video Generator – Pages</h1>
-
-  <div id="pages"></div>
-
-  <button class="add" onclick="addPage()">➕ Add Page</button>
-  <button class="preview" onclick="generateJSON()">Generate JSON</button>
-
-  <textarea id="output" rows="12" placeholder="Generated JSON..."></textarea>
+  <canvas id="canvas"></canvas>
+  <button onclick="renderAndRecord()">🎬 Generate Video</button>
 </div>
 
 <script>
-let pageCount = 0;
+/* ================== CONFIG ================== */
+const FPS = 30;
 
-function addPage(){
-  const id = pageCount++;
-  const div = document.createElement("div");
-  div.className = "page";
-  div.dataset.id = id;
+/* Replace this with fetch('/api/ai-video') result */
+const VIDEO_DATA = YOUR_API_JSON_RESPONSE;
 
-  div.innerHTML = `
-    <h3>Page ${id + 1}</h3>
+/* ============================================ */
 
-    <label>Page Text</label>
-    <textarea placeholder="Enter page text"></textarea>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = VIDEO_DATA.width;
+canvas.height = VIDEO_DATA.height;
 
-    <label>Page Duration (seconds)</label>
-    <input type="number" value="4" min="1">
+/* ---------- Load Audio ---------- */
+const audio = new Audio(VIDEO_DATA.audio);
 
-    <label>Images (multiple)</label>
-    <input type="file" multiple accept="image/*">
-
-    <button class="remove" onclick="this.parentElement.remove()">Remove Page</button>
-  `;
-
-  document.getElementById("pages").appendChild(div);
-}
-
-async function fileToBase64(file){
+/* ---------- Render SVG to Canvas ---------- */
+function drawSVG(svg){
   return new Promise(res=>{
-    const r = new FileReader();
-    r.onload = ()=>res(r.result);
-    r.readAsDataURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      res();
+    };
+    img.src = "data:image/svg+xml;base64," +
+      btoa(unescape(encodeURIComponent(svg)));
   });
 }
 
-async function generateJSON(){
-  const pages = [];
-  const nodes = document.querySelectorAll(".page");
+/* ---------- Main Render + Record ---------- */
+async function renderAndRecord(){
+  const stream = canvas.captureStream(FPS);
+  const audioStream = audio.captureStream();
 
-  for (const node of nodes){
-    const text = node.querySelector("textarea").value;
-    const duration = Number(node.querySelector("input[type=number]").value);
-    const files = node.querySelector("input[type=file]").files;
+  audioStream.getTracks().forEach(t=>stream.addTrack(t));
 
-    const images = [];
-    for (const f of files){
-      images.push(await fileToBase64(f));
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm; codecs=vp9"
+  });
+
+  const chunks = [];
+  recorder.ondataavailable = e => chunks.push(e.data);
+
+  recorder.start();
+  audio.play();
+
+  for (const frame of VIDEO_DATA.frames){
+    const frameCount = frame.duration * FPS;
+    for (let i=0;i<frameCount;i++){
+      await drawSVG(frame.svg);
+      await wait(1000/FPS);
     }
-
-    pages.push({ text, duration, images });
   }
 
-  const payload = {
-    ratio: "9:16",
-    theme: {
-      cardColor: "#0b0f1a",
-      textColor: "#ffffff"
-    },
-    user: {
-      username: "User",
-      profileImageBase64: ""
-    },
-    song: {
-      title: "Song Name",
-      artist: "Artist",
-      imageBase64: "",
-      musicUrl: "",
-      clipStart: 0,
-      clipEnd: 30
-    },
-    pages
-  };
+  recorder.stop();
 
-  document.getElementById("output").value =
-    JSON.stringify(payload, null, 2);
+  recorder.onstop = ()=>{
+    const blob = new Blob(chunks,{type:"video/webm"});
+    download(blob,"ai-video.webm");
+  };
 }
 
-// add first page by default
-addPage();
+function wait(ms){
+  return new Promise(r=>setTimeout(r,ms));
+}
+
+function download(blob,name){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+}
 </script>
 
 </body>
