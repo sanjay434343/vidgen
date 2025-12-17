@@ -25,7 +25,6 @@ body {
   height: 100vh;
 }
 
-/* TOP BAR */
 .top-bar {
   background: #0a0a0a;
   border-bottom: 1px solid #333;
@@ -37,7 +36,7 @@ body {
 }
 
 .logo {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   background: linear-gradient(135deg, #00d4ff, #ff00d4);
   -webkit-background-clip: text;
@@ -46,15 +45,15 @@ body {
 
 .top-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
 .btn {
-  padding: 8px 20px;
+  padding: 7px 16px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -80,16 +79,14 @@ body {
   background: #333;
 }
 
-/* MAIN CONTENT */
 .main-content {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* LEFT PANEL */
 .left-panel {
-  width: 280px;
+  width: 260px;
   background: #0f0f0f;
   border-right: 1px solid #333;
   display: flex;
@@ -98,7 +95,7 @@ body {
 }
 
 .left-panel::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .left-panel::-webkit-scrollbar-track {
@@ -111,22 +108,22 @@ body {
 }
 
 .tool-section {
-  padding: 16px;
+  padding: 14px;
   border-bottom: 1px solid #2a2a2a;
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #fff;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .tool-btn {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 6px;
@@ -134,10 +131,10 @@ body {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
   transition: all 0.2s;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .tool-btn:hover {
@@ -146,10 +143,9 @@ body {
 }
 
 .tool-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
-/* CENTER CANVAS AREA */
 .canvas-area {
   flex: 1;
   display: flex;
@@ -161,24 +157,24 @@ body {
 
 .pages-container {
   display: flex;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 6px;
+  padding: 8px 10px;
   background: #0f0f0f;
   border-bottom: 1px solid #333;
   overflow-x: auto;
 }
 
 .page-thumb {
-  min-width: 70px;
-  height: 50px;
+  min-width: 60px;
+  height: 45px;
   background: #1a1a1a;
   border: 2px solid #333;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
   transition: all 0.2s;
   position: relative;
@@ -196,25 +192,25 @@ body {
 
 .page-duration {
   position: absolute;
-  bottom: 3px;
-  right: 3px;
-  font-size: 9px;
+  bottom: 2px;
+  right: 2px;
+  font-size: 8px;
   background: #000;
-  padding: 2px 4px;
-  border-radius: 3px;
+  padding: 1px 3px;
+  border-radius: 2px;
 }
 
 .add-page-btn {
-  min-width: 70px;
-  height: 50px;
+  min-width: 60px;
+  height: 45px;
   background: #1a1a1a;
   border: 2px dashed #444;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   color: #666;
   transition: all 0.2s;
 }
@@ -225,30 +221,30 @@ body {
 }
 
 .canvas-controls {
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: #0f0f0f;
   border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .zoom-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   margin-left: auto;
 }
 
 .zoom-btn {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   background: #2a2a2a;
   border: 1px solid #444;
-  border-radius: 6px;
+  border-radius: 5px;
   color: #fff;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .zoom-btn:hover {
@@ -256,9 +252,9 @@ body {
 }
 
 .zoom-level {
-  min-width: 50px;
+  min-width: 45px;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
   color: #999;
 }
 
@@ -284,28 +280,23 @@ body {
 canvas {
   display: block;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-  cursor: move;
-  max-width: 400px;
-  max-height: 500px;
+  cursor: default;
+  max-width: 350px;
+  max-height: 450px;
 }
 
-canvas:active {
-  cursor: grabbing;
-}
-
-/* RIGHT PANEL */
 .right-panel {
-  width: 320px;
+  width: 300px;
   background: #0f0f0f;
   border-left: 1px solid #333;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 56px - 220px);
+  max-height: calc(100vh - 56px - 280px);
   overflow-y: auto;
 }
 
 .right-panel::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .right-panel::-webkit-scrollbar-track {
@@ -318,7 +309,7 @@ canvas:active {
 }
 
 .panel-section {
-  padding: 14px;
+  padding: 12px;
   border-bottom: 1px solid #2a2a2a;
 }
 
@@ -350,16 +341,16 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   background: #00d4ff;
   border-radius: 50%;
   cursor: pointer;
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   background: #00d4ff;
   border-radius: 50%;
   cursor: pointer;
@@ -372,12 +363,12 @@ input[type="url"],
 textarea,
 select {
   width: 100%;
-  padding: 7px 9px;
+  padding: 6px 8px;
   background: #1a1a1a;
   color: #e5e7eb;
   border: 1px solid #333;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 5px;
+  font-size: 11px;
   font-family: inherit;
 }
 
@@ -390,40 +381,40 @@ select:focus {
 
 textarea {
   resize: vertical;
-  min-height: 50px;
+  min-height: 45px;
 }
 
 input[type="color"] {
   width: 100%;
-  height: 32px;
+  height: 30px;
   padding: 2px;
   border: 1px solid #333;
-  border-radius: 6px;
+  border-radius: 5px;
   background: #1a1a1a;
   cursor: pointer;
 }
 
 input[type="file"] {
-  font-size: 11px;
-  padding: 5px;
+  font-size: 10px;
+  padding: 4px;
   cursor: pointer;
 }
 
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-  margin-top: 8px;
+  gap: 5px;
+  margin-top: 6px;
 }
 
 .preset-btn {
-  padding: 10px 6px;
+  padding: 8px 5px;
   background: #1a1a1a;
   border: 1px solid #333;
-  border-radius: 6px;
+  border-radius: 5px;
   color: #e5e7eb;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
   transition: all 0.2s;
 }
@@ -436,13 +427,12 @@ input[type="file"] {
 .preset-btn small {
   display: block;
   color: #666;
-  margin-top: 3px;
-  font-size: 9px;
+  margin-top: 2px;
+  font-size: 8px;
 }
 
-/* TIMELINE */
 .timeline {
-  height: 220px;
+  height: 280px;
   background: #0a0a0a;
   border-top: 1px solid #333;
   display: flex;
@@ -450,28 +440,28 @@ input[type="file"] {
 }
 
 .timeline-header {
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: #0f0f0f;
   border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .playback-controls {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
 .play-btn {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   background: #00d4ff;
   border: none;
   border-radius: 50%;
   color: #000;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -482,89 +472,147 @@ input[type="file"] {
 }
 
 .time-display {
-  font-size: 12px;
+  font-size: 11px;
   color: #999;
   font-variant-numeric: tabular-nums;
-  min-width: 90px;
+  min-width: 85px;
 }
 
 .timeline-content {
   flex: 1;
-  padding: 10px;
+  padding: 8px;
   overflow-x: auto;
   overflow-y: auto;
+  position: relative;
+}
+
+.timeline-ruler {
+  height: 20px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #333;
+  position: relative;
+  margin-bottom: 8px;
 }
 
 .timeline-tracks {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: max-content;
+  gap: 4px;
 }
 
 .track {
   background: #1a1a1a;
-  border-radius: 6px;
-  padding: 6px;
-  min-height: 40px;
+  border-radius: 4px;
+  padding: 4px;
+  min-height: 50px;
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
+  gap: 4px;
   position: relative;
 }
 
 .track-label {
-  font-size: 10px;
+  font-size: 9px;
   color: #666;
-  width: 70px;
-  flex-shrink: 0;
+  writing-mode: vertical-rl;
+  text-align: center;
+  padding: 4px;
+  background: #0f0f0f;
+  border-radius: 3px;
 }
 
-.track-items {
+.track-content {
   flex: 1;
-  display: flex;
-  gap: 3px;
   position: relative;
+  min-height: 42px;
 }
 
 .track-item {
+  position: absolute;
   background: linear-gradient(135deg, #00d4ff, #0099ff);
-  border-radius: 4px;
-  padding: 6px 10px;
-  font-size: 10px;
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 9px;
   color: #fff;
   cursor: move;
-  position: relative;
-  min-width: 80px;
+  min-width: 60px;
+  height: 38px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  overflow: hidden;
 }
 
 .track-item:hover {
-  opacity: 0.9;
+  border-color: #fff;
+  z-index: 10;
+}
+
+.track-item.selected {
+  border-color: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+  z-index: 20;
 }
 
 .track-item.audio {
   background: linear-gradient(135deg, #ff00d4, #ff0080);
 }
 
+.track-item.image {
+  background: linear-gradient(135deg, #00ff88, #00cc66);
+}
+
+.track-item.text {
+  background: linear-gradient(135deg, #ffaa00, #ff8800);
+}
+
+.item-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-duration {
+  font-size: 8px;
+  opacity: 0.8;
+}
+
+.item-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.item-handle.left {
+  left: 0;
+}
+
+.item-handle.right {
+  right: 0;
+}
+
 .layer-list {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .layer-item {
   background: #1a1a1a;
   border: 2px solid transparent;
-  border-radius: 6px;
+  border-radius: 5px;
   padding: 8px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .layer-item:hover {
@@ -577,43 +625,43 @@ input[type="file"] {
 }
 
 .layer-badge {
-  font-size: 9px;
-  padding: 2px 6px;
+  font-size: 8px;
+  padding: 2px 5px;
   background: #2a2a2a;
   border-radius: 3px;
   text-transform: uppercase;
 }
 
 .help-text {
-  font-size: 10px;
+  font-size: 9px;
   color: #666;
-  margin-top: 3px;
+  margin-top: 2px;
   font-style: italic;
 }
 
 .status-toast {
   position: fixed;
-  bottom: 240px;
-  right: 340px;
+  bottom: 300px;
+  right: 320px;
   background: #1a1a1a;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
   border: 1px solid #333;
   display: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .status-toast.show {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .loader {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border: 2px solid #00d4ff;
   border-top-color: transparent;
   border-radius: 50%;
@@ -624,31 +672,31 @@ input[type="file"] {
   to { transform: rotate(360deg); }
 }
 
-.effects-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.animation-presets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin-top: 6px;
 }
 
-.effect-item {
+.anim-btn {
+  padding: 6px 4px;
   background: #1a1a1a;
   border: 1px solid #333;
-  border-radius: 6px;
-  padding: 8px;
+  border-radius: 4px;
+  color: #e5e7eb;
   cursor: pointer;
+  font-size: 9px;
+  text-align: center;
   transition: all 0.2s;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.effect-item:hover {
+.anim-btn:hover {
   background: #2a2a2a;
   border-color: #00d4ff;
 }
 
-.effect-item.active {
+.anim-btn.active {
   background: #1a2a3a;
   border-color: #00d4ff;
 }
@@ -657,22 +705,20 @@ input[type="file"] {
 <body>
 
 <div class="editor-container">
-  <!-- TOP BAR -->
   <div class="top-bar">
-    <div class="logo">✂️ CapCut Editor</div>
+    <div class="logo">✂️ CapCut</div>
     <div class="top-actions">
-      <select id="canvasSizeSelect" style="padding: 6px 10px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; cursor: pointer; font-size: 12px;">
+      <select id="canvasSizeSelect" style="padding: 5px 8px; background: #2a2a2a; border: 1px solid #444; border-radius: 5px; color: #fff; cursor: pointer; font-size: 11px;">
         <option value="1080,1920">9:16 Portrait</option>
         <option value="1920,1080">16:9 Landscape</option>
         <option value="1080,1080">1:1 Square</option>
         <option value="720,1280">9:16 HD</option>
       </select>
-      <button class="btn btn-primary" onclick="exportAllPages()">📤 Export All Pages</button>
+      <button class="btn btn-primary" onclick="exportAllPages()">📤 Export</button>
     </div>
   </div>
 
   <div class="main-content">
-    <!-- LEFT PANEL -->
     <div class="left-panel">
       <div class="tool-section">
         <div class="section-title">📐 Canvas</div>
@@ -682,63 +728,40 @@ input[type="file"] {
           <div class="preset-btn" onclick="setCanvasSize(1080,1080)">1:1<br><small>1080×1080</small></div>
           <div class="preset-btn" onclick="setCanvasSize(720,1280)">HD<br><small>720×1280</small></div>
         </div>
-        <div class="property-row" style="margin-top: 10px;">
-          <div class="property-label">Background Color</div>
+        <div class="property-row" style="margin-top: 8px;">
+          <div class="property-label">Background</div>
           <input type="color" id="bgColor" value="#000000">
         </div>
       </div>
 
       <div class="tool-section">
         <div class="section-title">🎵 Music</div>
-        <input type="url" id="musicUrl" placeholder="Paste audio URL..." style="margin-bottom: 6px;">
+        <input type="url" id="musicUrl" placeholder="Audio URL..." style="margin-bottom: 5px;">
         <button class="tool-btn" onclick="loadMusic()">
           <span class="tool-icon">🎵</span>
           <span>Load Music</span>
         </button>
-        <audio id="audioPlayer" controls style="width: 100%; margin-top: 6px; display: none;"></audio>
+        <audio id="audioPlayer" controls style="width: 100%; margin-top: 5px; display: none; height: 28px;"></audio>
       </div>
 
       <div class="tool-section">
-        <div class="section-title">🎬 Layers</div>
-        <button class="tool-btn" onclick="addLayer()">
-          <span class="tool-icon">➕</span>
-          <span>Add Layer</span>
+        <div class="section-title">➕ Add Elements</div>
+        <button class="tool-btn" onclick="addElement('image')">
+          <span class="tool-icon">🖼️</span>
+          <span>Add Image</span>
         </button>
-        <div class="layer-list" id="layersList"></div>
+        <button class="tool-btn" onclick="addElement('text')">
+          <span class="tool-icon">💬</span>
+          <span>Add Text</span>
+        </button>
       </div>
 
       <div class="tool-section">
-        <div class="section-title">✨ Effects</div>
-        <div class="effects-list">
-          <div class="effect-item" onclick="applyEffect('blur')">
-            <span>🌫️</span>
-            <span>Blur</span>
-          </div>
-          <div class="effect-item" onclick="applyEffect('grayscale')">
-            <span>⚫</span>
-            <span>Grayscale</span>
-          </div>
-          <div class="effect-item" onclick="applyEffect('sepia')">
-            <span>🟤</span>
-            <span>Sepia</span>
-          </div>
-          <div class="effect-item" onclick="applyEffect('invert')">
-            <span>🔄</span>
-            <span>Invert</span>
-          </div>
-          <div class="effect-item" onclick="applyEffect('brightness')">
-            <span>💡</span>
-            <span>Brightness</span>
-          </div>
-          <div class="effect-item" onclick="applyEffect('contrast')">
-            <span>◐</span>
-            <span>Contrast</span>
-          </div>
-        </div>
+        <div class="section-title">🎬 Layers (Page <span id="currentPageNum">1</span>)</div>
+        <div class="layer-list" id="layersList"></div>
       </div>
     </div>
 
-    <!-- CENTER CANVAS -->
     <div class="canvas-area">
       <div class="pages-container" id="pagesContainer">
         <div class="page-thumb active" onclick="switchPage(0)">
@@ -749,7 +772,7 @@ input[type="file"] {
       </div>
 
       <div class="canvas-controls">
-        <span style="font-size: 11px; color: #999;">Canvas</span>
+        <span style="font-size: 10px; color: #999;">Canvas</span>
         <div class="zoom-controls">
           <button class="zoom-btn" onclick="zoomOut()">−</button>
           <div class="zoom-level" id="zoomLevel">100%</div>
@@ -765,27 +788,13 @@ input[type="file"] {
       </div>
     </div>
 
-    <!-- RIGHT PROPERTIES -->
     <div class="right-panel" id="rightPanel">
-      <div id="layerProperties" style="display: none;">
-        <div class="panel-section">
-          <div class="section-title">📸 Image</div>
+      <div id="elementProperties" style="display: none;">
+        <div class="panel-section" id="imageProps" style="display: none;">
+          <div class="section-title">🖼️ Image</div>
           <input type="file" id="imageUpload" accept="image/*">
-          <p class="help-text">Each layer has its own image</p>
-          <div class="property-row">
-            <div class="property-label">
-              <span>Position X</span>
-              <span class="property-value" id="imgXVal">0</span>
-            </div>
-            <input type="range" id="imgX" min="-1000" max="1000" value="0">
-          </div>
-          <div class="property-row">
-            <div class="property-label">
-              <span>Position Y</span>
-              <span class="property-value" id="imgYVal">0</span>
-            </div>
-            <input type="range" id="imgY" min="-1000" max="1000" value="0">
-          </div>
+          <p class="help-text">Upload image for this layer</p>
+          
           <div class="property-row">
             <div class="property-label">
               <span>Width</span>
@@ -802,13 +811,6 @@ input[type="file"] {
           </div>
           <div class="property-row">
             <div class="property-label">
-              <span>Scale</span>
-              <span class="property-value" id="imgScaleVal">1.0</span>
-            </div>
-            <input type="range" id="imgScale" min="0.5" max="3" step="0.01" value="1">
-          </div>
-          <div class="property-row">
-            <div class="property-label">
               <span>Opacity</span>
               <span class="property-value" id="imgOpacityVal">100%</span>
             </div>
@@ -816,10 +818,10 @@ input[type="file"] {
           </div>
         </div>
 
-        <div class="panel-section">
+        <div class="panel-section" id="textProps" style="display: none;">
           <div class="section-title">💬 Text</div>
           <textarea id="textContent" placeholder="Enter text...">YOUR TEXT</textarea>
-          <div class="property-row" style="margin-top: 10px;">
+          <div class="property-row" style="margin-top: 8px;">
             <div class="property-label">
               <span>Font Size</span>
               <span class="property-value" id="fontSizeVal">64</span>
@@ -833,26 +835,29 @@ input[type="file"] {
               <option value="Helvetica">Helvetica</option>
               <option value="Impact">Impact</option>
               <option value="Georgia">Georgia</option>
-              <option value="'Courier New'">Courier</option>
             </select>
           </div>
           <div class="property-row">
             <div class="property-label">Color</div>
             <input type="color" id="textColor" value="#ffffff">
           </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">📍 Position</div>
           <div class="property-row">
             <div class="property-label">
-              <span>X Position</span>
-              <span class="property-value" id="textXVal">0</span>
+              <span>X</span>
+              <span class="property-value" id="posXVal">0</span>
             </div>
-            <input type="range" id="textX" min="-1000" max="1000" value="0">
+            <input type="range" id="posX" min="-1000" max="1000" value="0">
           </div>
           <div class="property-row">
             <div class="property-label">
-              <span>Y Position</span>
-              <span class="property-value" id="textYVal">0</span>
+              <span>Y</span>
+              <span class="property-value" id="posYVal">0</span>
             </div>
-            <input type="range" id="textY" min="-1000" max="1000" value="0">
+            <input type="range" id="posY" min="-1000" max="1000" value="0">
           </div>
         </div>
 
@@ -861,89 +866,89 @@ input[type="file"] {
           <div class="property-row">
             <div class="property-label">
               <span>Scale</span>
-              <span class="property-value" id="layerScaleVal">1.0</span>
+              <span class="property-value" id="scaleVal">1.0</span>
             </div>
-            <input type="range" id="layerScale" min="0.1" max="3" step="0.01" value="1">
+            <input type="range" id="scale" min="0.1" max="3" step="0.01" value="1">
           </div>
           <div class="property-row">
             <div class="property-label">
               <span>Rotation</span>
-              <span class="property-value" id="layerRotateVal">0°</span>
+              <span class="property-value" id="rotateVal">0°</span>
             </div>
-            <input type="range" id="layerRotate" min="-180" max="180" value="0">
+            <input type="range" id="rotate" min="-180" max="180" value="0">
           </div>
           <div class="property-row">
             <div class="property-label">
               <span>Opacity</span>
-              <span class="property-value" id="layerOpacityVal">100%</span>
+              <span class="property-value" id="opacityVal">100%</span>
             </div>
-            <input type="range" id="layerOpacity" min="0" max="1" step="0.01" value="1">
+            <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
           </div>
         </div>
 
         <div class="panel-section">
-          <div class="section-title">✨ Effects</div>
+          <div class="section-title">⏱️ Timing</div>
           <div class="property-row">
             <div class="property-label">
-              <span>Blur</span>
-              <span class="property-value" id="effectBlurVal">0px</span>
+              <span>Start Time (s)</span>
+              <span class="property-value" id="startTimeVal">0.0</span>
             </div>
-            <input type="range" id="effectBlur" min="0" max="20" value="0">
+            <input type="range" id="startTime" min="0" max="30" step="0.1" value="0">
           </div>
           <div class="property-row">
             <div class="property-label">
-              <span>Brightness</span>
-              <span class="property-value" id="effectBrightnessVal">100%</span>
+              <span>Duration (s)</span>
+              <span class="property-value" id="durationVal">5.0</span>
             </div>
-            <input type="range" id="effectBrightness" min="0" max="200" value="100">
-          </div>
-          <div class="property-row">
-            <div class="property-label">
-              <span>Contrast</span>
-              <span class="property-value" id="effectContrastVal">100%</span>
-            </div>
-            <input type="range" id="effectContrast" min="0" max="200" value="100">
-          </div>
-          <div class="property-row">
-            <div class="property-label">
-              <span>Saturation</span>
-              <span class="property-value" id="effectSaturationVal">100%</span>
-            </div>
-            <input type="range" id="effectSaturation" min="0" max="200" value="100">
+            <input type="range" id="duration" min="0.1" max="30" step="0.1" value="5">
           </div>
         </div>
 
         <div class="panel-section">
-          <button class="btn btn-secondary" style="width: 100%; background: #dc2626;" onclick="deleteLayer()">🗑 Delete Layer</button>
+          <div class="section-title">✨ Animation</div>
+          <div class="animation-presets">
+            <div class="anim-btn" onclick="setAnimation('none')">None</div>
+            <div class="anim-btn" onclick="setAnimation('fadeIn')">Fade In</div>
+            <div class="anim-btn" onclick="setAnimation('fadeOut')">Fade Out</div>
+            <div class="anim-btn" onclick="setAnimation('slideLeft')">Slide Left</div>
+            <div class="anim-btn" onclick="setAnimation('slideRight')">Slide Right</div>
+            <div class="anim-btn" onclick="setAnimation('slideUp')">Slide Up</div>
+            <div class="anim-btn" onclick="setAnimation('slideDown')">Slide Down</div>
+            <div class="anim-btn" onclick="setAnimation('zoomIn')">Zoom In</div>
+            <div class="anim-btn" onclick="setAnimation('zoomOut')">Zoom Out</div>
+            <div class="anim-btn" onclick="setAnimation('rotate')">Rotate</div>
+          </div>
+          <div class="property-row" style="margin-top: 8px;">
+            <div class="property-label">
+              <span>Speed</span>
+              <span class="property-value" id="animSpeedVal">1.0</span>
+            </div>
+            <input type="range" id="animSpeed" min="0.1" max="3" step="0.1" value="1">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <button class="btn btn-secondary" style="width: 100%; background: #dc2626;" onclick="deleteElement()">🗑 Delete</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TIMELINE -->
   <div class="timeline">
     <div class="timeline-header">
       <div class="playback-controls">
         <button class="play-btn" onclick="play()">▶</button>
-        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="pause()">⏸</button>
-        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="reset()">⏮</button>
+        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="pause()">⏸</button>
+        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="reset()">⏮</button>
       </div>
       <div class="time-display" id="timeDisplay">00:00 / 05:00</div>
       <div style="flex: 1;"></div>
-      <input type="number" id="pageDuration" value="5" min="1" max="30" style="width: 70px; padding: 5px 6px; text-align: center; font-size: 12px;" placeholder="Sec">
-      <span style="font-size: 11px; color: #999;">sec</span>
+      <input type="number" id="pageDuration" value="5" min="1" max="30" style="width: 60px; padding: 4px 5px; text-align: center; font-size: 11px;" placeholder="Sec">
+      <span style="font-size: 10px; color: #999;">sec</span>
     </div>
     <div class="timeline-content">
-      <div class="timeline-tracks" id="timelineTracks">
-        <div class="track">
-          <div class="track-label">Video</div>
-          <div class="track-items" id="videoTrack"></div>
-        </div>
-        <div class="track">
-          <div class="track-label">Audio</div>
-          <div class="track-items" id="audioTrack"></div>
-        </div>
-      </div>
+      <div class="timeline-ruler" id="timelineRuler"></div>
+      <div class="timeline-tracks" id="timelineTracks"></div>
     </div>
   </div>
 </div>
@@ -960,20 +965,20 @@ const canvasWrapper = document.getElementById('canvasWrapper');
 const audioPlayer = document.getElementById('audioPlayer');
 
 let pages = [{
-  layers: [],
+  elements: [],
   duration: 5
 }];
 
 let currentPageIndex = 0;
-let activeLayerId = null;
+let activeElementId = null;
 let zoomLevel = 1;
 let isPlaying = false;
 let currentTime = 0;
 let animationId = null;
-let isDragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
 let musicLoaded = false;
+let isDraggingTimeline = false;
+let draggedItem = null;
+let dragStartX = 0;
 
 canvas.width = 1080;
 canvas.height = 1920;
@@ -981,52 +986,6 @@ canvas.height = 1920;
 redraw();
 updateLayersList();
 updateTimeline();
-
-// Canvas drag
-canvas.addEventListener('mousedown', e => {
-  if (!activeLayerId) return;
-  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
-  if (!layer) return;
-  
-  isDragging = true;
-  const rect = canvas.getBoundingClientRect();
-  dragStartX = e.clientX - rect.left;
-  dragStartY = e.clientY - rect.top;
-  canvas.style.cursor = 'grabbing';
-});
-
-canvas.addEventListener('mousemove', e => {
-  if (!isDragging || !activeLayerId) return;
-  
-  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
-  if (!layer) return;
-  
-  const rect = canvas.getBoundingClientRect();
-  const currentX = e.clientX - rect.left;
-  const currentY = e.clientY - rect.top;
-  
-  const deltaX = ((currentX - dragStartX) / rect.width) * canvas.width / zoomLevel;
-  const deltaY = ((currentY - dragStartY) / rect.height) * canvas.height / zoomLevel;
-  
-  layer.x += deltaX;
-  layer.y += deltaY;
-  
-  dragStartX = currentX;
-  dragStartY = currentY;
-  
-  updatePropertyValues();
-  redraw();
-});
-
-canvas.addEventListener('mouseup', () => {
-  isDragging = false;
-  canvas.style.cursor = 'move';
-});
-
-canvas.addEventListener('mouseleave', () => {
-  isDragging = false;
-  canvas.style.cursor = 'move';
-});
 
 function getCurrentPage() {
   return pages[currentPageIndex];
@@ -1038,100 +997,118 @@ function redraw() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const page = getCurrentPage();
-  page.layers.forEach(layer => {
+  const visibleElements = page.elements.filter(el => {
+    return currentTime >= el.startTime && currentTime <= (el.startTime + el.duration);
+  });
+
+  visibleElements.forEach(element => {
+    const elapsed = currentTime - element.startTime;
+    const progress = elapsed / element.duration;
+
     ctx.save();
-    ctx.globalAlpha = layer.opacity;
-    ctx.translate(canvas.width / 2 + layer.x, canvas.height / 2 + layer.y);
-    ctx.rotate(layer.rotate * Math.PI / 180);
-    ctx.scale(layer.scale, layer.scale);
+    
+    let animX = element.x;
+    let animY = element.y;
+    let animScale = element.scale;
+    let animRotate = element.rotate;
+    let animOpacity = element.opacity;
 
-    // Apply filters to this layer
-    let filters = [];
-    if (layer.blur > 0) filters.push(`blur(${layer.blur}px)`);
-    if (layer.brightness !== 100) filters.push(`brightness(${layer.brightness}%)`);
-    if (layer.contrast !== 100) filters.push(`contrast(${layer.contrast}%)`);
-    if (layer.saturation !== 100) filters.push(`saturate(${layer.saturation}%)`);
-    ctx.filter = filters.join(' ') || 'none';
-
-    // Draw this layer's individual image
-    if (layer.image) {
-      ctx.save();
-      ctx.globalAlpha = layer.opacity * layer.imgOpacity;
-      ctx.translate(layer.imgX, layer.imgY);
-      ctx.scale(layer.imgScale, layer.imgScale);
-
-      // Draw image with layer-specific size
-      const imgWidth = layer.imgWidth || canvas.width * 0.5;
-      const imgHeight = layer.imgHeight || canvas.height * 0.5;
-      ctx.drawImage(layer.image, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
-      ctx.restore();
+    // Apply animation
+    const animDuration = 0.5 / element.animSpeed;
+    const animProgress = Math.min(elapsed / animDuration, 1);
+    
+    if (element.animation === 'fadeIn') {
+      animOpacity *= animProgress;
+    } else if (element.animation === 'fadeOut') {
+      animOpacity *= (1 - Math.max((progress - 0.7) / 0.3, 0));
+    } else if (element.animation === 'slideLeft') {
+      animX += (1 - animProgress) * 500;
+    } else if (element.animation === 'slideRight') {
+      animX -= (1 - animProgress) * 500;
+    } else if (element.animation === 'slideUp') {
+      animY += (1 - animProgress) * 500;
+    } else if (element.animation === 'slideDown') {
+      animY -= (1 - animProgress) * 500;
+    } else if (element.animation === 'zoomIn') {
+      animScale *= 0.5 + animProgress * 0.5;
+    } else if (element.animation === 'zoomOut') {
+      animScale *= 1 + animProgress * 0.5;
+    } else if (element.animation === 'rotate') {
+      animRotate += animProgress * 360;
     }
 
-    // Draw text for this layer
-    ctx.filter = 'none';
-    ctx.globalAlpha = layer.opacity;
-    ctx.font = `900 ${layer.fontSize}px ${layer.fontFamily}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = layer.textColor;
-    
-    const lines = layer.text.split('\n');
-    lines.forEach((line, i) => {
-      const yOffset = layer.textY + (i - (lines.length - 1) / 2) * layer.fontSize * 1.2;
-      ctx.fillText(line, layer.textX, yOffset);
-    });
+    ctx.globalAlpha = animOpacity;
+    ctx.translate(canvas.width / 2 + animX, canvas.height / 2 + animY);
+    ctx.rotate(animRotate * Math.PI / 180);
+    ctx.scale(animScale, animScale);
+
+    if (element.type === 'image' && element.image) {
+      const w = element.width;
+      const h = element.height;
+      ctx.drawImage(element.image, -w / 2, -h / 2, w, h);
+    } else if (element.type === 'text') {
+      ctx.font = `900 ${element.fontSize}px ${element.fontFamily}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = element.textColor;
+      const lines = element.text.split('\n');
+      lines.forEach((line, i) => {
+        const yOffset = (i - (lines.length - 1) / 2) * element.fontSize * 1.2;
+        ctx.fillText(line, 0, yOffset);
+      });
+    }
 
     ctx.restore();
   });
 }
 
-function addLayer() {
+function addElement(type) {
   const id = Date.now();
-  const layer = {
+  const element = {
     id,
-    name: `Layer ${getCurrentPage().layers.length + 1}`,
+    type,
+    name: type === 'image' ? `Image ${getCurrentPage().elements.length + 1}` : `Text ${getCurrentPage().elements.length + 1}`,
     x: 0,
     y: 0,
     scale: 1,
     rotate: 0,
     opacity: 1,
-    image: null,
-    imgX: 0,
-    imgY: 0,
-    imgScale: 1,
-    imgOpacity: 1,
-    imgWidth: 540,
-    imgHeight: 540,
-    text: 'YOUR TEXT',
-    textX: 0,
-    textY: 0,
-    fontSize: 64,
-    fontFamily: 'Arial',
-    textColor: '#ffffff',
-    blur: 0,
-    brightness: 100,
-    contrast: 100,
-    saturation: 100
+    startTime: 0,
+    duration: 5,
+    animation: 'fadeIn',
+    animSpeed: 1
   };
 
-  getCurrentPage().layers.push(layer);
-  selectLayer(id);
+  if (type === 'image') {
+    element.image = null;
+    element.width = 540;
+    element.height = 540;
+  } else if (type === 'text') {
+    element.text = 'YOUR TEXT';
+    element.fontSize = 64;
+    element.fontFamily = 'Arial';
+    element.textColor = '#ffffff';
+  }
+
+  getCurrentPage().elements.push(element);
+  selectElement(id);
   updateLayersList();
   updateTimeline();
   redraw();
 }
 
-function selectLayer(id) {
-  activeLayerId = id;
+function selectElement(id) {
+  activeElementId = id;
   updateLayersList();
   updatePropertyPanel();
+  updateTimeline();
 }
 
-function deleteLayer() {
-  if (!activeLayerId) return;
+function deleteElement() {
+  if (!activeElementId) return;
   const page = getCurrentPage();
-  page.layers = page.layers.filter(l => l.id !== activeLayerId);
-  activeLayerId = null;
+  page.elements = page.elements.filter(el => el.id !== activeElementId);
+  activeElementId = null;
   updateLayersList();
   updatePropertyPanel();
   updateTimeline();
@@ -1142,113 +1119,132 @@ function updateLayersList() {
   const container = document.getElementById('layersList');
   const page = getCurrentPage();
   
-  container.innerHTML = page.layers.map(layer => `
-    <div class="layer-item ${layer.id === activeLayerId ? 'active' : ''}" 
-         onclick="selectLayer(${layer.id})">
-      <span>${layer.name}</span>
-      <span class="layer-badge">layer</span>
+  container.innerHTML = page.elements.map(element => `
+    <div class="layer-item ${element.id === activeElementId ? 'active' : ''}" 
+         onclick="selectElement(${element.id})">
+      <span>${element.name}</span>
+      <span class="layer-badge">${element.type}</span>
     </div>
   `).join('');
+  
+  document.getElementById('currentPageNum').textContent = currentPageIndex + 1;
 }
 
 function updatePropertyPanel() {
-  const panel = document.getElementById('layerProperties');
+  const panel = document.getElementById('elementProperties');
+  const imageProps = document.getElementById('imageProps');
+  const textProps = document.getElementById('textProps');
   
-  if (!activeLayerId) {
+  if (!activeElementId) {
     panel.style.display = 'none';
     return;
   }
 
   panel.style.display = 'block';
-  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
+  const element = getCurrentPage().elements.find(el => el.id === activeElementId);
+  
+  imageProps.style.display = element.type === 'image' ? 'block' : 'none';
+  textProps.style.display = element.type === 'text' ? 'block' : 'none';
   
   const bindings = [
-    ['imgX', 'imgX'],
-    ['imgY', 'imgY'],
-    ['imgWidth', 'imgWidth'],
-    ['imgHeight', 'imgHeight'],
-    ['imgScale', 'imgScale'],
-    ['imgOpacity', 'imgOpacity'],
-    ['textX', 'textX'],
-    ['textY', 'textY'],
-    ['fontSize', 'fontSize'],
-    ['layerScale', 'scale'],
-    ['layerRotate', 'rotate'],
-    ['layerOpacity', 'opacity'],
-    ['effectBlur', 'blur'],
-    ['effectBrightness', 'brightness'],
-    ['effectContrast', 'contrast'],
-    ['effectSaturation', 'saturation']
+    ['posX', 'x'],
+    ['posY', 'y'],
+    ['scale', 'scale'],
+    ['rotate', 'rotate'],
+    ['opacity', 'opacity'],
+    ['startTime', 'startTime'],
+    ['duration', 'duration'],
+    ['animSpeed', 'animSpeed']
   ];
+
+  if (element.type === 'image') {
+    bindings.push(['imgWidth', 'width']);
+    bindings.push(['imgHeight', 'height']);
+    bindings.push(['imgOpacity', 'opacity']);
+  } else if (element.type === 'text') {
+    bindings.push(['fontSize', 'fontSize']);
+  }
 
   bindings.forEach(([id, prop]) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.value = layer[prop];
+    el.value = element[prop];
     el.oninput = e => {
-      layer[prop] = Number(e.target.value);
+      element[prop] = Number(e.target.value);
       updatePropertyValues();
+      updateTimeline();
       redraw();
     };
   });
 
-  const simpleBindings = [
-    ['textContent', 'text'],
-    ['fontFamily', 'fontFamily'],
-    ['textColor', 'textColor']
-  ];
-
-  simpleBindings.forEach(([id, prop]) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.value = layer[prop];
-    el.oninput = e => {
-      layer[prop] = e.target.value;
+  if (element.type === 'text') {
+    const textContent = document.getElementById('textContent');
+    const fontFamily = document.getElementById('fontFamily');
+    const textColor = document.getElementById('textColor');
+    
+    textContent.value = element.text;
+    fontFamily.value = element.fontFamily;
+    textColor.value = element.textColor;
+    
+    textContent.oninput = e => {
+      element.text = e.target.value;
       redraw();
     };
-  });
+    
+    fontFamily.onchange = e => {
+      element.fontFamily = e.target.value;
+      redraw();
+    };
+    
+    textColor.oninput = e => {
+      element.textColor = e.target.value;
+      redraw();
+    };
+  }
 
-  document.getElementById('imageUpload').onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        layer.image = img;
-        redraw();
+  if (element.type === 'image') {
+    document.getElementById('imageUpload').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          element.image = img;
+          redraw();
+        };
+        img.src = reader.result;
       };
-      img.src = reader.result;
+      reader.readAsDataURL(file);
     };
-    reader.readAsDataURL(file);
-  };
+  }
 
   updatePropertyValues();
 }
 
 function updatePropertyValues() {
-  if (!activeLayerId) return;
-  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
-  if (!layer) return;
+  if (!activeElementId) return;
+  const element = getCurrentPage().elements.find(el => el.id === activeElementId);
+  if (!element) return;
 
   const updates = [
-    ['imgXVal', Math.round(layer.imgX)],
-    ['imgYVal', Math.round(layer.imgY)],
-    ['imgWidthVal', Math.round(layer.imgWidth)],
-    ['imgHeightVal', Math.round(layer.imgHeight)],
-    ['imgScaleVal', layer.imgScale.toFixed(2)],
-    ['imgOpacityVal', Math.round(layer.imgOpacity * 100) + '%'],
-    ['textXVal', Math.round(layer.textX)],
-    ['textYVal', Math.round(layer.textY)],
-    ['fontSizeVal', Math.round(layer.fontSize)],
-    ['layerScaleVal', layer.scale.toFixed(2)],
-    ['layerRotateVal', Math.round(layer.rotate) + '°'],
-    ['layerOpacityVal', Math.round(layer.opacity * 100) + '%'],
-    ['effectBlurVal', Math.round(layer.blur) + 'px'],
-    ['effectBrightnessVal', Math.round(layer.brightness) + '%'],
-    ['effectContrastVal', Math.round(layer.contrast) + '%'],
-    ['effectSaturationVal', Math.round(layer.saturation) + '%']
+    ['posXVal', Math.round(element.x)],
+    ['posYVal', Math.round(element.y)],
+    ['scaleVal', element.scale.toFixed(2)],
+    ['rotateVal', Math.round(element.rotate) + '°'],
+    ['opacityVal', Math.round(element.opacity * 100) + '%'],
+    ['startTimeVal', element.startTime.toFixed(1)],
+    ['durationVal', element.duration.toFixed(1)],
+    ['animSpeedVal', element.animSpeed.toFixed(1)]
   ];
+
+  if (element.type === 'image') {
+    updates.push(['imgWidthVal', Math.round(element.width)]);
+    updates.push(['imgHeightVal', Math.round(element.height)]);
+    updates.push(['imgOpacityVal', Math.round(element.opacity * 100) + '%']);
+  } else if (element.type === 'text') {
+    updates.push(['fontSizeVal', Math.round(element.fontSize)]);
+  }
 
   updates.forEach(([id, val]) => {
     const el = document.getElementById(id);
@@ -1256,46 +1252,17 @@ function updatePropertyValues() {
   });
 }
 
-function applyEffect(effect) {
-  if (!activeLayerId) {
-    showToast('Please select a layer first');
-    return;
-  }
-  
-  const layer = getCurrentPage().layers.find(l => l.id === activeLayerId);
-  if (!layer) return;
-
-  switch(effect) {
-    case 'blur':
-      layer.blur = layer.blur > 0 ? 0 : 10;
-      break;
-    case 'grayscale':
-      layer.saturation = layer.saturation === 0 ? 100 : 0;
-      break;
-    case 'sepia':
-      layer.brightness = 110;
-      layer.contrast = 90;
-      layer.saturation = 80;
-      break;
-    case 'invert':
-      layer.brightness = layer.brightness === 0 ? 100 : 0;
-      break;
-    case 'brightness':
-      layer.brightness = 150;
-      break;
-    case 'contrast':
-      layer.contrast = 150;
-      break;
-  }
-
-  updatePropertyPanel();
-  redraw();
-  showToast(`Applied ${effect} effect`);
+function setAnimation(anim) {
+  if (!activeElementId) return;
+  const element = getCurrentPage().elements.find(el => el.id === activeElementId);
+  if (!element) return;
+  element.animation = anim;
+  showToast(`Animation: ${anim}`);
 }
 
 function addPage() {
   pages.push({
-    layers: [],
+    elements: [],
     duration: 5
   });
   updatePagesUI();
@@ -1305,7 +1272,7 @@ function addPage() {
 
 function switchPage(index) {
   currentPageIndex = index;
-  activeLayerId = null;
+  activeElementId = null;
   updatePagesUI();
   updateLayersList();
   updatePropertyPanel();
@@ -1317,7 +1284,7 @@ function updatePagesUI() {
   const container = document.getElementById('pagesContainer');
   const pagesHTML = pages.map((page, i) => `
     <div class="page-thumb ${i === currentPageIndex ? 'active' : ''}" onclick="switchPage(${i})">
-      <span>Page ${i + 1}</span>
+      <span>P${i + 1}</span>
       <div class="page-duration">${page.duration}s</div>
     </div>
   `).join('');
@@ -1326,28 +1293,83 @@ function updatePagesUI() {
 }
 
 function updateTimeline() {
-  const videoTrack = document.getElementById('videoTrack');
-  const audioTrack = document.getElementById('audioTrack');
-  
+  const container = document.getElementById('timelineTracks');
   const page = getCurrentPage();
-  videoTrack.innerHTML = page.layers.map(layer => `
-    <div class="track-item">
-      <span>${layer.name}</span>
-      <span>${page.duration}s</span>
-    </div>
-  `).join('');
-
-  if (musicLoaded) {
-    audioTrack.innerHTML = `
-      <div class="track-item audio">
-        <span>🎵 Music</span>
-        <span>${page.duration}s</span>
+  const pageDuration = page.duration;
+  const pixelsPerSecond = 100;
+  
+  let tracksHTML = '';
+  
+  page.elements.forEach(element => {
+    const left = element.startTime * pixelsPerSecond;
+    const width = element.duration * pixelsPerSecond;
+    const color = element.type === 'image' ? 'image' : 'text';
+    const selected = element.id === activeElementId ? 'selected' : '';
+    
+    tracksHTML += `
+      <div class="track">
+        <div class="track-label">${element.name}</div>
+        <div class="track-content">
+          <div class="track-item ${color} ${selected}" 
+               style="left: ${left}px; width: ${width}px;"
+               data-id="${element.id}"
+               onmousedown="startDragTimeline(event, ${element.id})">
+            <div class="item-handle left"></div>
+            <div class="item-name">${element.name}</div>
+            <div class="item-duration">${element.duration.toFixed(1)}s</div>
+            <div class="item-handle right"></div>
+          </div>
+        </div>
       </div>
     `;
-  } else {
-    audioTrack.innerHTML = '<span style="color: #666; font-size: 10px;">No audio</span>';
+  });
+  
+  if (musicLoaded) {
+    tracksHTML += `
+      <div class="track">
+        <div class="track-label">Audio</div>
+        <div class="track-content">
+          <div class="track-item audio" style="left: 0px; width: ${pageDuration * pixelsPerSecond}px;">
+            <div class="item-name">🎵 Music</div>
+            <div class="item-duration">${pageDuration.toFixed(1)}s</div>
+          </div>
+        </div>
+      </div>
+    `;
   }
+  
+  container.innerHTML = tracksHTML;
 }
+
+function startDragTimeline(e, id) {
+  e.stopPropagation();
+  isDraggingTimeline = true;
+  draggedItem = id;
+  dragStartX = e.clientX;
+  selectElement(id);
+}
+
+document.addEventListener('mousemove', e => {
+  if (!isDraggingTimeline || !draggedItem) return;
+  const element = getCurrentPage().elements.find(el => el.id === draggedItem);
+  if (!element) return;
+  
+  const deltaX = e.clientX - dragStartX;
+  const pixelsPerSecond = 100;
+  const deltaTime = deltaX / pixelsPerSecond;
+  
+  element.startTime = Math.max(0, element.startTime + deltaTime);
+  dragStartX = e.clientX;
+  
+  updateTimeline();
+  updatePropertyValues();
+  redraw();
+});
+
+document.addEventListener('mouseup', () => {
+  isDraggingTimeline = false;
+  draggedItem = null;
+});
 
 function loadMusic() {
   const url = document.getElementById('musicUrl').value.trim();
@@ -1454,16 +1476,15 @@ function showToast(message) {
   const toast = document.getElementById('statusToast');
   document.getElementById('statusText').textContent = message;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 async function exportAllPages() {
-  showToast('Combining all pages and rendering...');
+  showToast('Rendering video...');
   
   const fps = 30;
   let totalDuration = 0;
   
-  // Calculate total duration
   pages.forEach(page => {
     totalDuration += page.duration;
   });
@@ -1503,64 +1524,17 @@ async function exportAllPages() {
 
     let globalTime = 0;
     
-    // Render all pages in sequence
     for (let pageIdx = 0; pageIdx < pages.length; pageIdx++) {
       const page = pages[pageIdx];
       const pageFrames = fps * page.duration;
       
       for (let i = 0; i < pageFrames; i++) {
         currentTime = i / fps;
-        globalTime += 1 / fps;
         
-        // Switch to current page for rendering
         const originalPage = currentPageIndex;
         currentPageIndex = pageIdx;
         
-        // Render current page
-        const bgColor = document.getElementById('bgColor').value;
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        page.layers.forEach(layer => {
-          ctx.save();
-          ctx.globalAlpha = layer.opacity;
-          ctx.translate(canvas.width / 2 + layer.x, canvas.height / 2 + layer.y);
-          ctx.rotate(layer.rotate * Math.PI / 180);
-          ctx.scale(layer.scale, layer.scale);
-
-          let filters = [];
-          if (layer.blur > 0) filters.push(`blur(${layer.blur}px)`);
-          if (layer.brightness !== 100) filters.push(`brightness(${layer.brightness}%)`);
-          if (layer.contrast !== 100) filters.push(`contrast(${layer.contrast}%)`);
-          if (layer.saturation !== 100) filters.push(`saturate(${layer.saturation}%)`);
-          ctx.filter = filters.join(' ') || 'none';
-
-          if (layer.image) {
-            ctx.save();
-            ctx.globalAlpha = layer.opacity * layer.imgOpacity;
-            ctx.translate(layer.imgX, layer.imgY);
-            ctx.scale(layer.imgScale, layer.imgScale);
-            const w = canvas.width;
-            const h = canvas.height;
-            ctx.drawImage(layer.image, -w / 2, -h / 2, w, h);
-            ctx.restore();
-          }
-
-          ctx.filter = 'none';
-          ctx.globalAlpha = layer.opacity;
-          ctx.font = `900 ${layer.fontSize}px ${layer.fontFamily}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = layer.textColor;
-          
-          const lines = layer.text.split('\n');
-          lines.forEach((line, j) => {
-            const yOffset = layer.textY + (j - (lines.length - 1) / 2) * layer.fontSize * 1.2;
-            ctx.fillText(line, layer.textX, yOffset);
-          });
-
-          ctx.restore();
-        });
+        redraw();
         
         currentPageIndex = originalPage;
         
@@ -1576,15 +1550,15 @@ async function exportAllPages() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `video-all-pages-${Date.now()}.webm`;
+      a.download = `video-${Date.now()}.webm`;
       a.click();
       URL.revokeObjectURL(url);
       
       reset();
-      showToast(`Exported ${pages.length} pages (${totalDuration}s)!`);
+      showToast(`Exported ${totalDuration.toFixed(1)}s video!`);
     };
   } catch (error) {
-    showToast('Export failed: ' + error.message);
+    showToast('Export failed');
     console.error(error);
   }
 }
