@@ -1,79 +1,154 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>AI Video Preview</title>
+<meta charset="UTF-8">
+<title>AI Video Page Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body{
   background:#020617;
   color:#e5e7eb;
   font-family:system-ui;
-  display:flex;
-  justify-content:center;
   padding:20px;
 }
 .app{
-  width:420px;
+  max-width:900px;
+  margin:auto;
 }
-.frame{
-  width:100%;
-  aspect-ratio:9/16;
-  background:#000;
+.page{
+  border:1px solid #1e293b;
   border-radius:14px;
-  overflow:hidden;
+  padding:16px;
+  margin-bottom:16px;
 }
-.controls{
-  margin-top:10px;
-  display:flex;
-  gap:10px;
+.page h3{
+  margin:0 0 10px;
+}
+input, textarea{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  background:#020617;
+  border:1px solid #334155;
+  color:#e5e7eb;
+  border-radius:8px;
 }
 button{
-  flex:1;
-  padding:10px;
+  padding:10px 14px;
   font-weight:700;
   cursor:pointer;
+  border-radius:8px;
+}
+.add{
+  background:#16a34a;
+  color:#fff;
+}
+.remove{
+  background:#dc2626;
+  color:#fff;
+}
+.preview{
+  background:#2563eb;
+  color:#fff;
+}
+.row{
+  display:flex;
+  gap:10px;
 }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <div class="frame" id="frame"></div>
-  <div class="controls">
-    <button onclick="prev()">◀ Prev</button>
-    <button onclick="next()">Next ▶</button>
-  </div>
+  <h1>AI Video Generator – Pages</h1>
+
+  <div id="pages"></div>
+
+  <button class="add" onclick="addPage()">➕ Add Page</button>
+  <button class="preview" onclick="generateJSON()">Generate JSON</button>
+
+  <textarea id="output" rows="12" placeholder="Generated JSON..."></textarea>
 </div>
 
 <script>
-let frames = [];
-let index = 0;
+let pageCount = 0;
 
-async function load() {
-  const res = await fetch("/api/ai-video", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify(YOUR_JSON_HERE)
+function addPage(){
+  const id = pageCount++;
+  const div = document.createElement("div");
+  div.className = "page";
+  div.dataset.id = id;
+
+  div.innerHTML = `
+    <h3>Page ${id + 1}</h3>
+
+    <label>Page Text</label>
+    <textarea placeholder="Enter page text"></textarea>
+
+    <label>Page Duration (seconds)</label>
+    <input type="number" value="4" min="1">
+
+    <label>Images (multiple)</label>
+    <input type="file" multiple accept="image/*">
+
+    <button class="remove" onclick="this.parentElement.remove()">Remove Page</button>
+  `;
+
+  document.getElementById("pages").appendChild(div);
+}
+
+async function fileToBase64(file){
+  return new Promise(res=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.readAsDataURL(file);
   });
-  const data = await res.json();
-  frames = data.frames;
-  show();
 }
 
-function show(){
-  document.getElementById("frame").innerHTML = frames[index].svg;
+async function generateJSON(){
+  const pages = [];
+  const nodes = document.querySelectorAll(".page");
+
+  for (const node of nodes){
+    const text = node.querySelector("textarea").value;
+    const duration = Number(node.querySelector("input[type=number]").value);
+    const files = node.querySelector("input[type=file]").files;
+
+    const images = [];
+    for (const f of files){
+      images.push(await fileToBase64(f));
+    }
+
+    pages.push({ text, duration, images });
+  }
+
+  const payload = {
+    ratio: "9:16",
+    theme: {
+      cardColor: "#0b0f1a",
+      textColor: "#ffffff"
+    },
+    user: {
+      username: "User",
+      profileImageBase64: ""
+    },
+    song: {
+      title: "Song Name",
+      artist: "Artist",
+      imageBase64: "",
+      musicUrl: "",
+      clipStart: 0,
+      clipEnd: 30
+    },
+    pages
+  };
+
+  document.getElementById("output").value =
+    JSON.stringify(payload, null, 2);
 }
 
-function next(){
-  index = (index+1)%frames.length;
-  show();
-}
-function prev(){
-  index = (index-1+frames.length)%frames.length;
-  show();
-}
-
-load();
+// add first page by default
+addPage();
 </script>
 
 </body>
