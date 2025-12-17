@@ -771,6 +771,7 @@ input[type="file"] {
         <div class="panel-section">
           <div class="section-title">📸 Image</div>
           <input type="file" id="imageUpload" accept="image/*">
+          <p class="help-text">Each layer has its own image</p>
           <div class="property-row">
             <div class="property-label">
               <span>Position X</span>
@@ -784,6 +785,20 @@ input[type="file"] {
               <span class="property-value" id="imgYVal">0</span>
             </div>
             <input type="range" id="imgY" min="-1000" max="1000" value="0">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Width</span>
+              <span class="property-value" id="imgWidthVal">540</span>
+            </div>
+            <input type="range" id="imgWidth" min="50" max="2000" value="540">
+          </div>
+          <div class="property-row">
+            <div class="property-label">
+              <span>Height</span>
+              <span class="property-value" id="imgHeightVal">540</span>
+            </div>
+            <input type="range" id="imgHeight" min="50" max="2000" value="540">
           </div>
           <div class="property-row">
             <div class="property-label">
@@ -1030,7 +1045,7 @@ function redraw() {
     ctx.rotate(layer.rotate * Math.PI / 180);
     ctx.scale(layer.scale, layer.scale);
 
-    // Apply filters
+    // Apply filters to this layer
     let filters = [];
     if (layer.blur > 0) filters.push(`blur(${layer.blur}px)`);
     if (layer.brightness !== 100) filters.push(`brightness(${layer.brightness}%)`);
@@ -1038,20 +1053,21 @@ function redraw() {
     if (layer.saturation !== 100) filters.push(`saturate(${layer.saturation}%)`);
     ctx.filter = filters.join(' ') || 'none';
 
-    // Draw image
+    // Draw this layer's individual image
     if (layer.image) {
       ctx.save();
       ctx.globalAlpha = layer.opacity * layer.imgOpacity;
       ctx.translate(layer.imgX, layer.imgY);
       ctx.scale(layer.imgScale, layer.imgScale);
 
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.drawImage(layer.image, -w / 2, -h / 2, w, h);
+      // Draw image with layer-specific size
+      const imgWidth = layer.imgWidth || canvas.width * 0.5;
+      const imgHeight = layer.imgHeight || canvas.height * 0.5;
+      ctx.drawImage(layer.image, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
       ctx.restore();
     }
 
-    // Draw text
+    // Draw text for this layer
     ctx.filter = 'none';
     ctx.globalAlpha = layer.opacity;
     ctx.font = `900 ${layer.fontSize}px ${layer.fontFamily}`;
@@ -1084,6 +1100,8 @@ function addLayer() {
     imgY: 0,
     imgScale: 1,
     imgOpacity: 1,
+    imgWidth: 540,
+    imgHeight: 540,
     text: 'YOUR TEXT',
     textX: 0,
     textY: 0,
@@ -1147,6 +1165,8 @@ function updatePropertyPanel() {
   const bindings = [
     ['imgX', 'imgX'],
     ['imgY', 'imgY'],
+    ['imgWidth', 'imgWidth'],
+    ['imgHeight', 'imgHeight'],
     ['imgScale', 'imgScale'],
     ['imgOpacity', 'imgOpacity'],
     ['textX', 'textX'],
@@ -1214,6 +1234,8 @@ function updatePropertyValues() {
   const updates = [
     ['imgXVal', Math.round(layer.imgX)],
     ['imgYVal', Math.round(layer.imgY)],
+    ['imgWidthVal', Math.round(layer.imgWidth)],
+    ['imgHeightVal', Math.round(layer.imgHeight)],
     ['imgScaleVal', layer.imgScale.toFixed(2)],
     ['imgOpacityVal', Math.round(layer.imgOpacity * 100) + '%'],
     ['textXVal', Math.round(layer.textX)],
