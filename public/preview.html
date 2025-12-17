@@ -15,7 +15,7 @@ body {
   padding:20px;
 }
 .app {
-  max-width:1100px;
+  max-width:1200px;
   width:100%;
   background:#020617;
   padding:20px;
@@ -23,22 +23,25 @@ body {
 }
 .grid {
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1.1fr 0.9fr;
   gap:20px;
 }
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
+
 .panel {
   border:1px solid #1e293b;
   border-radius:14px;
   padding:16px;
 }
+
 label {
   font-size:13px;
   color:#94a3b8;
   margin-top:12px;
   display:block;
 }
-input,textarea,select {
+
+input, textarea, select {
   width:100%;
   margin-top:6px;
   padding:10px;
@@ -47,6 +50,7 @@ input,textarea,select {
   border-radius:8px;
   color:#e5e7eb;
 }
+
 button {
   margin-top:16px;
   padding:12px;
@@ -55,17 +59,64 @@ button {
   border:none;
   border-radius:10px;
   font-weight:700;
+  cursor:pointer;
 }
+
+button.secondary {
+  background:#1e293b;
+  color:#e5e7eb;
+}
+
 .preview {
   background:#000;
   border-radius:14px;
   overflow:hidden;
   border:1px solid #1e293b;
+  margin-bottom:12px;
 }
 .preview img,.preview video {
   width:100%;
   height:100%;
   object-fit:contain;
+}
+
+/* SONG SEARCH */
+.song-results {
+  margin-top:10px;
+  max-height:220px;
+  overflow:auto;
+  border:1px solid #1e293b;
+  border-radius:10px;
+}
+.song-item {
+  display:flex;
+  gap:10px;
+  padding:8px;
+  cursor:pointer;
+  border-bottom:1px solid #1e293b;
+}
+.song-item:hover {background:#020617}
+.song-item img {
+  width:48px;
+  height:48px;
+  border-radius:8px;
+}
+.song-meta {
+  font-size:13px;
+}
+.song-meta b {display:block}
+
+/* CLIP CUTTER */
+.range-wrap {
+  margin-top:14px;
+}
+.range-wrap input {
+  padding:0;
+}
+.clip-info {
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:6px;
 }
 </style>
 </head>
@@ -74,52 +125,72 @@ button {
 <div class="app">
 <div class="grid">
 
+<!-- LEFT PANEL -->
 <div class="panel">
-  <label>User Name</label>
-  <input id="username">
 
-  <label>User Profile Image URL</label>
-  <input id="userProfileImage">
+<label>User Name</label>
+<input id="username">
 
-  <label>Aspect Ratio</label>
-  <select id="ratio">
-    <option value="1:1">1:1</option>
-    <option value="9:16">9:16</option>
-    <option value="16:9" selected>16:9</option>
-  </select>
+<label>User Profile Image URL</label>
+<input id="userProfileImage">
 
-  <label>Main Text</label>
-  <textarea id="text">HELLO WORLD</textarea>
+<label>Aspect Ratio</label>
+<select id="ratio">
+  <option value="1:1">1:1</option>
+  <option value="9:16">9:16</option>
+  <option value="16:9" selected>16:9</option>
+</select>
 
-  <label>Text Color</label>
-  <input type="color" id="textColor" value="#ffffff">
+<label>Main Text</label>
+<textarea id="text">HELLO WORLD</textarea>
 
-  <label>Background Color</label>
-  <input type="color" id="cardColor" value="#000000">
+<label>Text Color</label>
+<input type="color" id="textColor" value="#ffffff">
 
-  <label>Song Title</label>
-  <input id="songTitle">
+<label>Background Color</label>
+<input type="color" id="cardColor" value="#000000">
 
-  <label>Artist</label>
-  <input id="artist">
+<hr style="margin:20px 0;border-color:#1e293b">
 
-  <label>Song Image URL</label>
-  <input id="songImage">
+<label>Search Song (JioSaavn)</label>
+<input id="songSearch" placeholder="Search song or artist">
+<button class="secondary" onclick="searchSong()">Search</button>
 
-  <label>Music URL</label>
-  <input id="musicUrl">
+<div class="song-results" id="songResults"></div>
 
+<label>Song Title</label>
+<input id="songTitle">
+
+<label>Artist</label>
+<input id="artist">
+
+<label>Song Image URL</label>
+<input id="songImage">
+
+<label>Music URL (160kbps)</label>
+<input id="musicUrl">
+
+<!-- CLIP CUTTER -->
+<div class="range-wrap">
   <label>Clip Start (sec)</label>
-  <input id="clipStart" type="number" step="0.1">
-
-  <label>Clip End (sec)</label>
-  <input id="clipEnd" type="number" step="0.1">
-
-  <button onclick="generate()">Generate & Download</button>
+  <input type="range" id="clipStart" min="0" step="0.1" value="0">
 </div>
 
+<div class="range-wrap">
+  <label>Clip End (sec)</label>
+  <input type="range" id="clipEnd" min="10" step="0.1" value="10">
+</div>
+
+<div class="clip-info" id="clipInfo">
+  Duration: 10s (Min 10s / Max 30s)
+</div>
+
+<button onclick="generate()">Generate & Download</button>
+</div>
+
+<!-- RIGHT PANEL -->
 <div class="panel">
-  <div class="preview"><img id="svgPreview"></div><br>
+  <div class="preview"><img id="svgPreview"></div>
   <div class="preview"><video id="videoPreview" controls></video></div>
 </div>
 
@@ -129,6 +200,82 @@ button {
 <canvas id="canvas" style="display:none"></canvas>
 
 <script>
+/* ======================
+   JIOSAAVN SEARCH
+====================== */
+async function searchSong(){
+  const q = songSearch.value.trim();
+  if(!q) return;
+
+  songResults.innerHTML="Searching...";
+
+  const api = `https://saavn.dev/api/search/songs?query=${encodeURIComponent(q)}&limit=10`;
+
+  const res = await fetch(api);
+  const json = await res.json();
+  const songs = json.data.results;
+
+  songResults.innerHTML="";
+  songs.forEach(s=>{
+    const item=document.createElement("div");
+    item.className="song-item";
+    item.innerHTML=`
+      <img src="${s.image[1].url}">
+      <div class="song-meta">
+        <b>${s.name}</b>
+        ${s.primaryArtists}
+      </div>
+    `;
+    item.onclick=()=>selectSong(s);
+    songResults.appendChild(item);
+  });
+}
+
+function selectSong(s){
+  songTitle.value = s.name;
+  artist.value = s.primaryArtists;
+  songImage.value = s.image[s.image.length-1].url;
+
+  // pick 160kbps
+  const audio160 = s.downloadUrl.find(a=>a.quality==="160kbps");
+  musicUrl.value = audio160.url;
+
+  setupClipper(audio160.url);
+}
+
+/* ======================
+   CLIP CUTTER
+====================== */
+let audioDuration=0;
+
+function setupClipper(url){
+  const audio=new Audio(url);
+  audio.addEventListener("loadedmetadata",()=>{
+    audioDuration = audio.duration;
+    clipStart.max = audioDuration-10;
+    clipEnd.max = audioDuration;
+    clipEnd.value = Math.min(clipStart.value*1+10,audioDuration);
+    updateClipInfo();
+  });
+}
+
+clipStart.oninput = clipEnd.oninput = ()=>{
+  let start = Number(clipStart.value);
+  let end = Number(clipEnd.value);
+  if(end-start < 10) end = start+10;
+  if(end-start > 30) end = start+30;
+  clipEnd.value = Math.min(end,audioDuration);
+  updateClipInfo();
+};
+
+function updateClipInfo(){
+  clipInfo.textContent =
+    `Duration: ${(clipEnd.value-clipStart.value).toFixed(1)}s (Min 10s / Max 30s)`;
+}
+
+/* ======================
+   BASE64 HELPER
+====================== */
 async function toBase64(url){
   if(!url) return "";
   const r=await fetch(url);
@@ -140,24 +287,27 @@ async function toBase64(url){
   });
 }
 
+/* ======================
+   GENERATE
+====================== */
 async function generate(){
   const start=Number(clipStart.value);
   const end=Number(clipEnd.value);
-  if(end<=start){alert("Invalid clip range");return;}
+  if(end-start<10 || end-start>30){
+    alert("Clip must be between 10s and 30s");
+    return;
+  }
 
   const payload={
     ratio:ratio.value,
     text:text.value,
     textColor:textColor.value,
     cardColor:cardColor.value,
-
     username:username.value,
     userProfileImageBase64:await toBase64(userProfileImage.value),
-
     songTitle:songTitle.value,
     artist:artist.value,
     songImageBase64:await toBase64(songImage.value),
-
     musicUrl:musicUrl.value,
     clipStart:start,
     clipEnd:end
@@ -169,7 +319,7 @@ async function generate(){
     body:JSON.stringify(payload)
   });
 
-  const data=JSON.parse(await r.text());
+  const data=await r.json();
   if(!data.success){alert("API failed");return;}
 
   const svgData="data:image/svg+xml;base64,"+
@@ -178,7 +328,6 @@ async function generate(){
 
   canvas.width=data.width;
   canvas.height=data.height;
-
   const ctx=canvas.getContext("2d");
   const img=new Image();
   img.src=svgData;
@@ -219,7 +368,7 @@ async function generate(){
     rec.stop();
     audio.pause();
     ac.close();
-  },data.clipDuration*1000);
+  },(end-start)*1000);
 }
 </script>
 </body>
